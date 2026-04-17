@@ -8,6 +8,9 @@
     "email": "sarkarbiplab@gmail.com"
   },
   "main": "electron/main.js",
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "scripts": {
     "start": "vite build && electron .",
     "dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",
