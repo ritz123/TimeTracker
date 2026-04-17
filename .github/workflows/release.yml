@@ -82,10 +82,10 @@ jobs:
 
       - uses: android-actions/setup-android@v3
 
-      - name: Install Android SDK packages (API 35)
+      - name: Install Android SDK packages (API 36)
         run: |
           yes | sdkmanager --licenses >/dev/null 2>&1 || true
-          sdkmanager --install "platforms;android-35" "build-tools;35.0.0" "platform-tools"
+          sdkmanager --install "platforms;android-36" "build-tools;36.0.0" "platform-tools"
 
       - run: npm ci
       - run: npx vite build
