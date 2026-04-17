@@ -102,20 +102,15 @@ git push origin HEAD
 git push origin "$TAG"
 green "  Pushed commit and tag to origin"
 
-# ── GitHub Release (optional, requires gh CLI) ─────────────
-
-if command -v gh &>/dev/null; then
-  echo ""
-  bold "Creating GitHub release..."
-  gh release create "$TAG" \
-    --title "Time Tracker ${TAG}" \
-    --generate-notes
-  green "  GitHub release created: ${TAG}"
-else
-  echo ""
-  echo "Tip: Install the GitHub CLI (gh) to auto-create releases:"
-  echo "  gh release create ${TAG} --title 'Time Tracker ${TAG}' --generate-notes"
-fi
+# ── Done ──────────────────────────────────────────────────
 
 echo ""
 green "Done! Released Time Tracker ${TAG}"
+echo ""
+bold "GitHub Actions will now automatically build:"
+echo "  - Linux   (AppImage + .deb)"
+echo "  - Windows (installer + portable .exe)"
+echo "  - Android (APK)"
+echo ""
+echo "  Builds attach to the GitHub Release once complete."
+echo "  Monitor progress: https://github.com/ritz123/TimeTracker/actions"
