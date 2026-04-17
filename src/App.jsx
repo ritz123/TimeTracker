@@ -1,17 +1,19 @@
 import React, { useReducer, useEffect, useCallback, useState } from 'react';
+import { isSameDay } from 'date-fns';
 import SplashScreen from './components/SplashScreen';
 import Toolbar from './components/Toolbar';
-import WeekCalendar from './components/WeekCalendar';
-import MonthPicker from './components/MonthPicker';
+import MonthCalendar from './components/MonthCalendar';
+import DayDetailPanel from './components/DayDetailPanel';
 import ItemForm from './components/ItemForm';
 import ExportModal from './components/ExportModal';
-import { loadData, saveData } from './utils/storage';
-import { formatDateKey, weekOffsetForDate } from './utils/dates';
+import SettingsModal from './components/SettingsModal';
+import { loadData, saveData, loadPrefs, savePrefs } from './utils/storage';
+import { formatDateKey, getItemsForDay } from './utils/dates';
 import { v4 as uuidv4 } from 'uuid';
 
 const initialState = {
   items: [],
-  weekOffset: 0,
+  monthOffset: 0,
   editingItem: null,
   selectedDate: null,
   loaded: false,
@@ -44,14 +46,12 @@ function reducer(state, action) {
         editingItem: null,
         selectedDate: null,
       };
-    case 'PREV_WEEK':
-      return { ...state, weekOffset: state.weekOffset - 1, editingItem: null, selectedDate: null };
-    case 'NEXT_WEEK':
-      return { ...state, weekOffset: state.weekOffset + 1, editingItem: null, selectedDate: null };
+    case 'PREV_MONTH':
+      return { ...state, monthOffset: state.monthOffset - 1, editingItem: null, selectedDate: null };
+    case 'NEXT_MONTH':
+      return { ...state, monthOffset: state.monthOffset + 1, editingItem: null, selectedDate: null };
     case 'TODAY':
-      return { ...state, weekOffset: 0, editingItem: null, selectedDate: null };
-    case 'GO_TO_WEEK':
-      return { ...state, weekOffset: action.payload, editingItem: null, selectedDate: null };
+      return { ...state, monthOffset: 0, editingItem: null, selectedDate: null };
     case 'START_ADD':
       return { ...state, editingItem: null, selectedDate: action.payload };
     case 'START_EDIT':
@@ -67,16 +67,53 @@ export default function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [showSplash, setShowSplash] = useState(true);
   const [showExportModal, setShowExportModal] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [pinnedDate, setPinnedDate] = useState(null);
+  const [hoveredDate, setHoveredDate] = useState(null);
+  const [storageMode, setStorageMode] = useState('local');
 
+  const displayDate = pinnedDate || hoveredDate || new Date();
+  const displayItems = getItemsForDay(state.items, displayDate);
+
+  // Load prefs then data on startup
   useEffect(() => {
-    loadData().then((items) => dispatch({ type: 'SET_ITEMS', payload: items }));
+    (async () => {
+      const prefs = await loadPrefs();
+      const mode = prefs.storageMode || 'local';
+      setStorageMode(mode);
+      try {
+        const items = await loadData(mode);
+        dispatch({ type: 'SET_ITEMS', payload: items });
+      } catch {
+        const items = await loadData('local');
+        dispatch({ type: 'SET_ITEMS', payload: items });
+        setStorageMode('local');
+      }
+    })();
   }, []);
 
+  // Save whenever items change
   useEffect(() => {
     if (state.loaded) {
-      saveData(state.items);
+      saveData(state.items, storageMode).catch(() => {
+        saveData(state.items, 'local');
+      });
     }
-  }, [state.items, state.loaded]);
+  }, [state.items, state.loaded, storageMode]);
+
+  const handleStorageModeChange = useCallback(async (newMode) => {
+    setStorageMode(newMode);
+    await savePrefs({ storageMode: newMode });
+  }, []);
+
+  const handleSyncFromGoogle = useCallback(async () => {
+    try {
+      const items = await loadData('google');
+      dispatch({ type: 'SET_ITEMS', payload: items });
+    } catch {
+      // keep current items if sync fails
+    }
+  }, []);
 
   const handleAddItem = useCallback((date) => {
     dispatch({ type: 'START_ADD', payload: date });
@@ -118,9 +155,20 @@ export default function App() {
   );
 
   const handleDayClick = useCallback((date) => {
-    const offset = weekOffsetForDate(date);
-    dispatch({ type: 'GO_TO_WEEK', payload: offset });
+    setPinnedDate((prev) => (prev && isSameDay(prev, date) ? null : date));
   }, []);
+
+  const handleDayHover = useCallback((date) => {
+    setHoveredDate(date);
+  }, []);
+
+  const handleTogglePin = useCallback(() => {
+    if (pinnedDate) {
+      setPinnedDate(null);
+    } else {
+      setPinnedDate(displayDate);
+    }
+  }, [pinnedDate, displayDate]);
 
   if (showSplash) {
     return <SplashScreen onFinished={() => setShowSplash(false)} />;
@@ -137,25 +185,32 @@ export default function App() {
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/40">
       <Toolbar
-        weekOffset={state.weekOffset}
-        onPrevWeek={() => dispatch({ type: 'PREV_WEEK' })}
-        onNextWeek={() => dispatch({ type: 'NEXT_WEEK' })}
+        monthOffset={state.monthOffset}
+        storageMode={storageMode}
+        onPrevMonth={() => dispatch({ type: 'PREV_MONTH' })}
+        onNextMonth={() => dispatch({ type: 'NEXT_MONTH' })}
         onToday={() => dispatch({ type: 'TODAY' })}
         onExport={() => setShowExportModal(true)}
+        onSettings={() => setShowSettings(true)}
       />
 
       <div className="flex flex-1 min-h-0 overflow-hidden">
-        <MonthPicker
-          weekOffset={state.weekOffset}
+        <MonthCalendar
+          monthOffset={state.monthOffset}
           items={state.items}
+          focusedDate={pinnedDate}
+          hoveredDate={hoveredDate}
           onDayClick={handleDayClick}
+          onDayHover={handleDayHover}
         />
-        <WeekCalendar
-          weekOffset={state.weekOffset}
-          items={state.items}
-          onAddItem={handleAddItem}
-          onEditItem={handleEditItem}
-          onDeleteItem={handleDeleteItem}
+        <DayDetailPanel
+          date={displayDate}
+          items={displayItems}
+          isPinned={!!pinnedDate}
+          onEdit={handleEditItem}
+          onDelete={handleDeleteItem}
+          onAdd={handleAddItem}
+          onPin={handleTogglePin}
         />
       </div>
 
@@ -169,8 +224,16 @@ export default function App() {
       {showExportModal && (
         <ExportModal
           items={state.items}
-          weekOffset={state.weekOffset}
           onClose={() => setShowExportModal(false)}
+        />
+      )}
+
+      {showSettings && (
+        <SettingsModal
+          storageMode={storageMode}
+          onStorageModeChange={handleStorageModeChange}
+          onSyncFromGoogle={handleSyncFromGoogle}
+          onClose={() => setShowSettings(false)}
         />
       )}
     </div>

@@ -1,13 +1,15 @@
 import React, { useState, useRef } from 'react';
-import { format, parseISO, startOfWeek, endOfWeek } from 'date-fns';
-import { getWeekRange, formatDateKey } from '../utils/dates';
+import { parseISO, startOfMonth, endOfMonth, startOfWeek, endOfWeek } from 'date-fns';
+import { formatDateKey } from '../utils/dates';
 import { generateMarkdownForRange, markdownToHtml } from '../utils/markdown';
 import { exportMarkdown } from '../utils/storage';
 
-export default function ExportModal({ items, weekOffset, onClose }) {
-  const { start, end } = getWeekRange(weekOffset);
-  const [startDate, setStartDate] = useState(formatDateKey(start));
-  const [endDate, setEndDate] = useState(formatDateKey(end));
+export default function ExportModal({ items, onClose }) {
+  const now = new Date();
+  const monthStart = startOfMonth(now);
+  const monthEnd = endOfMonth(now);
+  const [startDate, setStartDate] = useState(formatDateKey(monthStart));
+  const [endDate, setEndDate] = useState(formatDateKey(monthEnd));
   const [exporting, setExporting] = useState(false);
   const previewRef = useRef(null);
 
@@ -96,7 +98,11 @@ export default function ExportModal({ items, weekOffset, onClose }) {
           {/* Quick presets */}
           <div className="flex gap-2 mt-3">
             {[
-              { label: 'This week', fn: () => { setStartDate(formatDateKey(start)); setEndDate(formatDateKey(end)); } },
+              { label: 'This week', fn: () => {
+                const ws = startOfWeek(new Date(), { weekStartsOn: 1 });
+                const we = endOfWeek(new Date(), { weekStartsOn: 1 });
+                setStartDate(formatDateKey(ws)); setEndDate(formatDateKey(we));
+              }},
               { label: 'Last 7 days', fn: () => {
                 const now = new Date();
                 const past = new Date(now); past.setDate(past.getDate() - 6);

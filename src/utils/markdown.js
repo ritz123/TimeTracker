@@ -1,10 +1,5 @@
-import { getWeekDays, getWeekRange, formatDayFull, formatDateKey } from './dates';
-import { format, eachDayOfInterval, parseISO } from 'date-fns';
-
-export function generateMarkdown(items, weekOffset) {
-  const { start, end } = getWeekRange(weekOffset);
-  return generateMarkdownForRange(items, start, end);
-}
+import { formatDayFull, formatDateKey } from './dates';
+import { format, eachDayOfInterval } from 'date-fns';
 
 export function generateMarkdownForRange(items, start, end) {
   const days = eachDayOfInterval({ start, end });
@@ -67,7 +62,6 @@ export function markdownToHtml(md) {
     .replace(/\n/g, '');
 }
 
-export function getDefaultFilename(weekOffset) {
-  const { start } = getWeekRange(weekOffset);
-  return `weekly-report-${formatDateKey(start)}`;
+export function getDefaultFilename(startDate, endDate) {
+  return `report-${formatDateKey(startDate)}-to-${formatDateKey(endDate)}`;
 }
