@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply antialiased;
+  }
+}
+
+@layer components {
+  .card-hover {
+    @apply transition-all duration-150 hover:shadow-md hover:-translate-y-0.5;
+  }
+}
+
+/* Splash screen animations */
+.splash-title {
+  animation: slideUp 0.8s ease-out both;
+}
+.splash-subtitle {
+  animation: slideUp 0.8s ease-out 0.3s both;
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Month calendar mini-cell dots */
+.day-dot {
+  @apply w-1 h-1 rounded-full;
+}
