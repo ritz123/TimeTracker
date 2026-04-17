@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { APP_NAME, APP_VERSION, APP_TAGLINE } from '../utils/appInfo';
 
 export default function SplashScreen({ onFinished }) {
   const [fadeOut, setFadeOut] = useState(false);
@@ -24,23 +25,16 @@ export default function SplashScreen({ onFinished }) {
       <div className="relative mb-8">
         <div className="absolute -inset-6 rounded-full bg-white/10 blur-2xl animate-pulse" />
         <svg className="relative w-24 h-24 text-white drop-shadow-2xl" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <rect x="3" y="4" width="18" height="18" rx="2" strokeWidth="1.5" />
-          <path d="M3 10h18" strokeWidth="1.5" />
-          <path d="M8 2v4" strokeWidth="1.5" strokeLinecap="round" />
-          <path d="M16 2v4" strokeWidth="1.5" strokeLinecap="round" />
-          <path d="M7 14h2v2H7z" fill="currentColor" strokeWidth="0" />
-          <path d="M11 14h2v2h-2z" fill="currentColor" strokeWidth="0" />
-          <path d="M15 14h2v2h-2z" fill="currentColor" strokeWidth="0" />
-          <path d="M7 18h2" strokeWidth="1.5" strokeLinecap="round" />
-          <path d="M11 18h2" strokeWidth="1.5" strokeLinecap="round" />
+          <circle cx="12" cy="12" r="10" strokeWidth="1.5" />
+          <path d="M12 6v6l4 2" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </div>
 
       <h1 className="text-4xl font-bold text-white tracking-tight mb-3 splash-title">
-        Weekly Tracker
+        {APP_NAME}
       </h1>
       <p className="text-indigo-200 text-lg font-light mb-10 splash-subtitle">
-        Track your work. Celebrate your wins.
+        {APP_TAGLINE}
       </p>
 
       <div className="flex items-center gap-3 mb-8">
@@ -54,7 +48,7 @@ export default function SplashScreen({ onFinished }) {
       </div>
 
       <div className="absolute bottom-10 text-indigo-300/60 text-xs font-medium tracking-widest uppercase">
-        v1.0
+        v{APP_VERSION}
       </div>
     </div>
   );

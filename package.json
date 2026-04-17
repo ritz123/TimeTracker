@@ -1,7 +1,9 @@
 {
-  "name": "weekly-tracker",
+  "name": "time-tracker",
   "version": "1.0.0",
-  "description": "Desktop app for tracking weekly work items and achievements",
+  "description": "Time Tracker — Desktop app for tracking work items and achievements",
+  "license": "GPL-2.0-only",
+  "author": "Time Tracker Contributors",
   "main": "electron/main.js",
   "scripts": {
     "start": "vite build && electron .",
@@ -12,6 +14,7 @@
   },
   "dependencies": {
     "date-fns": "^4.1.0",
+    "dotenv": "^17.4.2",
     "googleapis": "^171.4.0",
     "html2pdf.js": "^0.14.0",
     "uuid": "^11.1.0"

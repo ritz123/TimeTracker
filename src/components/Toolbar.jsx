@@ -1,38 +1,50 @@
 import React from 'react';
 import { formatMonthYear, getMonthGrid } from '../utils/dates';
+import { APP_NAME } from '../utils/appInfo';
 
 export default function Toolbar({ monthOffset, storageMode, onPrevMonth, onNextMonth, onToday, onExport, onSettings }) {
   const { month } = getMonthGrid(monthOffset);
 
   return (
     <div className="flex items-center justify-between px-6 py-3 bg-gradient-to-r from-indigo-600 via-indigo-600 to-violet-600 shadow-lg shadow-indigo-500/20">
-      <div className="flex items-center gap-1.5">
-        <button
-          onClick={onPrevMonth}
-          className="p-2 rounded-lg hover:bg-white/15 transition-colors text-indigo-100 hover:text-white"
-          title="Previous month"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+      {/* App name + nav */}
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 mr-2">
+          <svg className="w-5 h-5 text-white/90" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <circle cx="12" cy="12" r="10" strokeWidth="1.5" />
+            <path d="M12 6v6l4 2" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
-        </button>
+          <span className="text-sm font-bold text-white tracking-wide">{APP_NAME}</span>
+        </div>
 
-        <button
-          onClick={onToday}
-          className="px-3 py-1.5 text-sm font-medium rounded-lg hover:bg-white/15 transition-colors text-indigo-100 hover:text-white"
-        >
-          Today
-        </button>
+        <div className="flex items-center gap-1 border-l border-white/20 pl-4">
+          <button
+            onClick={onPrevMonth}
+            className="p-2 rounded-lg hover:bg-white/15 transition-colors text-indigo-100 hover:text-white"
+            title="Previous month"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
 
-        <button
-          onClick={onNextMonth}
-          className="p-2 rounded-lg hover:bg-white/15 transition-colors text-indigo-100 hover:text-white"
-          title="Next month"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
+          <button
+            onClick={onToday}
+            className="px-3 py-1.5 text-sm font-medium rounded-lg hover:bg-white/15 transition-colors text-indigo-100 hover:text-white"
+          >
+            Today
+          </button>
+
+          <button
+            onClick={onNextMonth}
+            className="p-2 rounded-lg hover:bg-white/15 transition-colors text-indigo-100 hover:text-white"
+            title="Next month"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       <div className="flex items-center gap-3">

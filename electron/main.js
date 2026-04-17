@@ -1,3 +1,5 @@
+require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
+
 const { app, BrowserWindow, Menu } = require('electron');
 const path = require('path');
 const { registerIpcHandlers } = require('./ipc-handlers');
@@ -8,8 +10,8 @@ function createWindow() {
   Menu.setApplicationMenu(null);
 
   mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 800,
+    width: 900,
+    height: 600,
     minWidth: 900,
     minHeight: 600,
     webPreferences: {
@@ -18,7 +20,7 @@ function createWindow() {
       nodeIntegration: false,
     },
     titleBarStyle: 'hiddenInset',
-    title: 'Weekly Work Tracker',
+    title: 'Time Tracker',
   });
 
   const isDev = !app.isPackaged;

@@ -49,7 +49,7 @@ function registerIpcHandlers() {
 
   ipcMain.handle('export-markdown', async (_event, markdown, defaultFilename) => {
     const result = await dialog.showSaveDialog({
-      title: 'Export Weekly Report',
+      title: 'Time Tracker — Export Report',
       defaultPath: path.join(os.homedir(), 'Documents', defaultFilename),
       filters: [{ name: 'Markdown', extensions: ['md'] }],
     });

@@ -9,6 +9,7 @@ import ExportModal from './components/ExportModal';
 import SettingsModal from './components/SettingsModal';
 import { loadData, saveData, loadPrefs, savePrefs } from './utils/storage';
 import { formatDateKey, getItemsForDay } from './utils/dates';
+import { APP_NAME, APP_VERSION, APP_COPYRIGHT, APP_LICENSE } from './utils/appInfo';
 import { v4 as uuidv4 } from 'uuid';
 
 const initialState = {
@@ -227,6 +228,12 @@ export default function App() {
           onClose={() => setShowExportModal(false)}
         />
       )}
+
+      {/* Copyright footer */}
+      <div className="flex items-center justify-between px-6 py-1.5 bg-slate-100 border-t border-slate-200 text-[10px] text-slate-400">
+        <span>{APP_COPYRIGHT} &middot; {APP_LICENSE}</span>
+        <span>{APP_NAME} v{APP_VERSION}</span>
+      </div>
 
       {showSettings && (
         <SettingsModal
