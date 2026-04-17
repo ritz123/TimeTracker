@@ -19,6 +19,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install Linux packaging deps (electron-builder / fpm)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            icnsutils graphicsmagick xz-utils fakeroot
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -62,26 +68,33 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          # Capacitor 8 Android template sets Java 21 language level (see app/capacitor.build.gradle).
+          java-version: 21
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
 
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 17
-
       - uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK packages (API 35)
+        run: |
+          yes | sdkmanager --licenses >/dev/null 2>&1 || true
+          sdkmanager --install "platforms;android-35" "build-tools;35.0.0" "platform-tools"
 
       - run: npm ci
       - run: npx vite build
-      - run: npx cap add android
       - run: npx cap sync android
 
-      - name: Build APK
+      - name: Build release APK
         working-directory: android
-        run: ./gradlew assembleRelease
+        run: |
+          chmod +x ./gradlew
+          ./gradlew --no-daemon assembleRelease
 
       - uses: actions/upload-artifact@v4
         with:
