@@ -1,4 +1,5 @@
 const { app, BrowserWindow, Menu, nativeImage } = require('electron');
+const fs = require('fs');
 const path = require('path');
 const { registerIpcHandlers } = require('./ipc-handlers');
 
@@ -34,11 +35,16 @@ function createWindow() {
     title: 'Time Tracker',
   });
 
-  const isDev = !app.isPackaged;
-  if (isDev) {
+  const distHtml = path.join(__dirname, '..', 'dist', 'index.html');
+  const hasDist = fs.existsSync(distHtml);
+  const useViteDevServer = !app.isPackaged && app.commandLine.hasSwitch('vite-dev');
+
+  if (useViteDevServer) {
     mainWindow.loadURL('http://localhost:5173');
+  } else if (hasDist) {
+    mainWindow.loadFile(distHtml);
   } else {
-    mainWindow.loadFile(path.join(__dirname, '..', 'dist', 'index.html'));
+    mainWindow.loadURL('http://localhost:5173');
   }
 }
 
