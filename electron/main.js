@@ -1,8 +1,20 @@
-const { app, BrowserWindow, Menu } = require('electron');
+const { app, BrowserWindow, Menu, nativeImage } = require('electron');
 const path = require('path');
 const { registerIpcHandlers } = require('./ipc-handlers');
 
 let mainWindow;
+
+const ICON_DIR = path.join(__dirname, '..', 'build', 'icons');
+
+/** Prefer nativeImage so Linux WMs get correct ARGB / aspect when mapping _NET_WM_ICON. */
+function loadWindowIcon() {
+  if (process.platform === 'win32') {
+    const ico = nativeImage.createFromPath(path.join(ICON_DIR, 'icon.ico'));
+    if (!ico.isEmpty()) return ico;
+  }
+  const png = nativeImage.createFromPath(path.join(ICON_DIR, 'icon.png'));
+  return png.isEmpty() ? undefined : png;
+}
 
 function createWindow() {
   Menu.setApplicationMenu(null);
@@ -12,7 +24,7 @@ function createWindow() {
     height: 600,
     minWidth: 900,
     minHeight: 600,
-    icon: path.join(__dirname, '..', 'build', 'icons', 'icon.png'),
+    icon: loadWindowIcon(),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
