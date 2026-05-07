@@ -8,7 +8,13 @@ const PREFS_KEY = 'weekly-tracker-prefs';
 export async function loadPrefs() {
   if (isElectron) return window.api.getPrefs();
   const raw = localStorage.getItem(PREFS_KEY);
-  return raw ? JSON.parse(raw) : { storageMode: 'local' };
+  const prefs = raw ? JSON.parse(raw) : { storageMode: 'local' };
+  if (prefs.storageMode === 'google') {
+    const next = { ...prefs, storageMode: 'local' };
+    await savePrefs(next);
+    return next;
+  }
+  return prefs;
 }
 
 export async function savePrefs(prefs) {
@@ -17,7 +23,7 @@ export async function savePrefs(prefs) {
   return true;
 }
 
-// --- Data (local) ---
+// --- Data ---
 
 async function loadLocal() {
   if (isElectron) return window.api.loadData();
@@ -31,48 +37,12 @@ async function saveLocal(items) {
   return true;
 }
 
-// --- Data (Google Drive) ---
-
-async function loadGoogle() {
-  if (!isElectron) throw new Error('Google Drive requires the desktop app');
-  return window.api.googleLoadData();
+export async function loadData() {
+  return loadLocal();
 }
 
-async function saveGoogle(items) {
-  if (!isElectron) throw new Error('Google Drive requires the desktop app');
-  return window.api.googleSaveData(items);
-}
-
-// --- Unified API ---
-
-export async function loadData(storageMode = 'local') {
-  return storageMode === 'google' ? loadGoogle() : loadLocal();
-}
-
-export async function saveData(items, storageMode = 'local') {
-  return storageMode === 'google' ? saveGoogle(items) : saveLocal(items);
-}
-
-// --- Google auth helpers ---
-
-export async function googleAuthStatus() {
-  if (!isElectron) return { isConfigured: false, isAuthenticated: false };
-  return window.api.googleAuthStatus();
-}
-
-export async function googleSignIn() {
-  if (!isElectron) throw new Error('Requires desktop app');
-  return window.api.googleSignIn();
-}
-
-export async function googleSignOut() {
-  if (!isElectron) throw new Error('Requires desktop app');
-  return window.api.googleSignOut();
-}
-
-export async function googleUserInfo() {
-  if (!isElectron) return null;
-  return window.api.googleUserInfo();
+export async function saveData(items) {
+  return saveLocal(items);
 }
 
 // --- Export ---

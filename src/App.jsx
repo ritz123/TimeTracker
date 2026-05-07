@@ -7,7 +7,7 @@ import DayDetailPanel from './components/DayDetailPanel';
 import ItemForm from './components/ItemForm';
 import ExportModal from './components/ExportModal';
 import SettingsModal from './components/SettingsModal';
-import { loadData, saveData, loadPrefs, savePrefs } from './utils/storage';
+import { loadData, saveData, loadPrefs } from './utils/storage';
 import { formatDateKey, getItemsForDay } from './utils/dates';
 import { APP_NAME, APP_VERSION, APP_COPYRIGHT, APP_LICENSE } from './utils/appInfo';
 import { v4 as uuidv4 } from 'uuid';
@@ -71,24 +71,19 @@ export default function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [pinnedDate, setPinnedDate] = useState(null);
   const [hoveredDate, setHoveredDate] = useState(null);
-  const [storageMode, setStorageMode] = useState('local');
 
   const displayDate = pinnedDate || hoveredDate || new Date();
   const displayItems = getItemsForDay(state.items, displayDate);
 
-  // Load prefs then data on startup
+  // Load prefs (migrates legacy google mode → local) then data on startup
   useEffect(() => {
     (async () => {
-      const prefs = await loadPrefs();
-      const mode = prefs.storageMode || 'local';
-      setStorageMode(mode);
+      await loadPrefs();
       try {
-        const items = await loadData(mode);
+        const items = await loadData();
         dispatch({ type: 'SET_ITEMS', payload: items });
       } catch {
-        const items = await loadData('local');
-        dispatch({ type: 'SET_ITEMS', payload: items });
-        setStorageMode('local');
+        dispatch({ type: 'SET_ITEMS', payload: [] });
       }
     })();
   }, []);
@@ -96,25 +91,9 @@ export default function App() {
   // Save whenever items change
   useEffect(() => {
     if (state.loaded) {
-      saveData(state.items, storageMode).catch(() => {
-        saveData(state.items, 'local');
-      });
+      saveData(state.items).catch(() => {});
     }
-  }, [state.items, state.loaded, storageMode]);
-
-  const handleStorageModeChange = useCallback(async (newMode) => {
-    setStorageMode(newMode);
-    await savePrefs({ storageMode: newMode });
-  }, []);
-
-  const handleSyncFromGoogle = useCallback(async () => {
-    try {
-      const items = await loadData('google');
-      dispatch({ type: 'SET_ITEMS', payload: items });
-    } catch {
-      // keep current items if sync fails
-    }
-  }, []);
+  }, [state.items, state.loaded]);
 
   const handleAddItem = useCallback((date) => {
     dispatch({ type: 'START_ADD', payload: date });
@@ -187,7 +166,6 @@ export default function App() {
     <div className="flex flex-col h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/40">
       <Toolbar
         monthOffset={state.monthOffset}
-        storageMode={storageMode}
         onPrevMonth={() => dispatch({ type: 'PREV_MONTH' })}
         onNextMonth={() => dispatch({ type: 'NEXT_MONTH' })}
         onToday={() => dispatch({ type: 'TODAY' })}
@@ -236,12 +214,7 @@ export default function App() {
       </div>
 
       {showSettings && (
-        <SettingsModal
-          storageMode={storageMode}
-          onStorageModeChange={handleStorageModeChange}
-          onSyncFromGoogle={handleSyncFromGoogle}
-          onClose={() => setShowSettings(false)}
-        />
+        <SettingsModal onClose={() => setShowSettings(false)} />
       )}
     </div>
   );

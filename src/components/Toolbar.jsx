@@ -2,7 +2,7 @@ import React from 'react';
 import { formatMonthYear, getMonthGrid } from '../utils/dates';
 import { APP_NAME } from '../utils/appInfo';
 
-export default function Toolbar({ monthOffset, storageMode, onPrevMonth, onNextMonth, onToday, onExport, onSettings }) {
+export default function Toolbar({ monthOffset, onPrevMonth, onNextMonth, onToday, onExport, onSettings }) {
   const { month } = getMonthGrid(monthOffset);
 
   return (
@@ -51,11 +51,6 @@ export default function Toolbar({ monthOffset, storageMode, onPrevMonth, onNextM
         <h1 className="text-lg font-semibold text-white tracking-tight">
           {formatMonthYear(month)}
         </h1>
-        {storageMode === 'google' && (
-          <span className="text-[10px] font-bold text-indigo-200 bg-white/15 px-2 py-0.5 rounded-full">
-            Google Drive
-          </span>
-        )}
       </div>
 
       <div className="flex items-center gap-2">

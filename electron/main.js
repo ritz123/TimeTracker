@@ -1,5 +1,3 @@
-require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
-
 const { app, BrowserWindow, Menu } = require('electron');
 const path = require('path');
 const { registerIpcHandlers } = require('./ipc-handlers');
