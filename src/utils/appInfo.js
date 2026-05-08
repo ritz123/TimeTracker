@@ -1,5 +1,5 @@
 export const APP_NAME = 'Time Tracker';
-export const APP_VERSION = '1.15.0';
+export const APP_VERSION = '1.16.0';
 export const APP_TAGLINE = 'Track your work. Celebrate your wins.';
 export const APP_DESCRIPTION =
   'A desktop application for tracking daily work items, achievements, and generating reports. ' +
