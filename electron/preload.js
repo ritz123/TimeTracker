@@ -9,4 +9,5 @@ contextBridge.exposeInMainWorld('api', {
   // Preferences
   getPrefs: () => ipcRenderer.invoke('get-prefs'),
   savePrefs: (prefs) => ipcRenderer.invoke('save-prefs', prefs),
+  openExternal: (url) => ipcRenderer.invoke('open-external', url),
 });

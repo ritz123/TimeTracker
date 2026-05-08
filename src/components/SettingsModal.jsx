@@ -1,19 +1,77 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   APP_NAME, APP_VERSION, APP_TAGLINE, APP_DESCRIPTION,
   APP_LICENSE, APP_LICENSE_URL, APP_CONTACT_EMAIL, APP_REPO_URL, APP_COPYRIGHT,
+  APP_RELEASES_URL,
 } from '../utils/appInfo';
 import { THEME_OPTIONS } from '../theme';
+import { checkForUpdates } from '../utils/updates';
+import { loadPrefs, savePrefs, openExternalUrl } from '../utils/storage';
 
 const TABS = [
   { id: 'appearance', label: 'Appearance' },
   { id: 'storage', label: 'Storage' },
+  { id: 'updates', label: 'Updates' },
   { id: 'about', label: 'About' },
   { id: 'contact', label: 'Contact' },
 ];
 
 export default function SettingsModal({ theme, onThemeChange, onClose }) {
   const [activeTab, setActiveTab] = useState('appearance');
+  const [checkOnStartup, setCheckOnStartup] = useState(false);
+  const [updateBusy, setUpdateBusy] = useState(false);
+  const [updateNotice, setUpdateNotice] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const p = await loadPrefs();
+      if (!cancelled) setCheckOnStartup(!!p.checkUpdatesOnStartup);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  async function handleToggleStartupCheck() {
+    const next = !checkOnStartup;
+    setCheckOnStartup(next);
+    const p = await loadPrefs();
+    await savePrefs({ ...p, checkUpdatesOnStartup: next });
+  }
+
+  async function handleCheckUpdatesNow() {
+    setUpdateBusy(true);
+    setUpdateNotice(null);
+    try {
+      const r = await checkForUpdates();
+      if (!r.ok) {
+        setUpdateNotice({ type: 'error', text: r.errorMessage || 'Update check failed.' });
+        return;
+      }
+      if (r.isNewer && r.remoteVersion) {
+        setUpdateNotice({
+          type: 'new',
+          text: `A newer release is available: ${r.name || r.remoteVersion} (${r.remoteVersion}).`,
+          url: r.htmlUrl,
+        });
+        return;
+      }
+      if (r.remoteVersion) {
+        setUpdateNotice({
+          type: 'ok',
+          text: `You are up to date. Latest GitHub release is ${r.remoteVersion} (this app is ${r.currentVersion}).`,
+        });
+        return;
+      }
+      setUpdateNotice({
+        type: 'ok',
+        text: 'No published releases were found on GitHub. You can still browse the releases page below.',
+      });
+    } finally {
+      setUpdateBusy(false);
+    }
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm" style={{ backgroundColor: 'var(--modal-backdrop)' }}>
@@ -151,6 +209,90 @@ export default function SettingsModal({ theme, onThemeChange, onClose }) {
                   </span>
                 </div>
               </div>
+            </div>
+          )}
+
+          {activeTab === 'updates' && (
+            <div className="space-y-5">
+              <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+                Compare this install to the latest release on GitHub. Requires network access.
+              </p>
+
+              <div className="p-4 rounded-xl border" style={{ backgroundColor: 'var(--surface-muted)', borderColor: 'var(--border)' }}>
+                <p className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: 'var(--text-faint)' }}>
+                  Installed version
+                </p>
+                <p className="text-lg font-bold" style={{ color: 'var(--text)' }}>
+                  {APP_VERSION}
+                </p>
+              </div>
+
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={checkOnStartup}
+                  onChange={() => {
+                    void handleToggleStartupCheck();
+                  }}
+                  className="mt-1 w-4 h-4 rounded border-[var(--form-border)]"
+                  style={{ accentColor: 'var(--accent)' }}
+                />
+                <span>
+                  <span className="text-sm font-semibold block" style={{ color: 'var(--text)' }}>
+                    Check for updates when the app opens
+                  </span>
+                  <span className="text-xs block mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                    Runs quietly in the background. If a newer version exists, a banner appears under the toolbar.
+                  </span>
+                </span>
+              </label>
+
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  disabled={updateBusy}
+                  onClick={handleCheckUpdatesNow}
+                  className="px-4 py-2 text-sm font-semibold text-white rounded-lg transition-opacity disabled:opacity-50"
+                  style={{ backgroundImage: 'var(--gradient-accent-btn)' }}
+                >
+                  {updateBusy ? 'Checking…' : 'Check for updates now'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => openExternalUrl(APP_RELEASES_URL)}
+                  className="px-4 py-2 text-sm font-medium rounded-lg border"
+                  style={{
+                    borderColor: 'var(--border)',
+                    color: 'var(--text-link)',
+                    backgroundColor: 'var(--surface)',
+                  }}
+                >
+                  View releases on GitHub
+                </button>
+              </div>
+
+              {updateNotice && (
+                <div
+                  className="p-3 rounded-lg border text-sm"
+                  style={{
+                    backgroundColor: updateNotice.type === 'error' ? 'rgba(254, 226, 226, 0.5)' : 'var(--modal-storage-bg)',
+                    borderColor: updateNotice.type === 'error' ? '#fecaca' : 'var(--border)',
+                    color: 'var(--text)',
+                  }}
+                >
+                  <p>{updateNotice.text}</p>
+                  {updateNotice.type === 'new' && updateNotice.url && (
+                    <button
+                      type="button"
+                      className="mt-2 text-sm font-semibold underline"
+                      style={{ color: 'var(--text-link)' }}
+                      onClick={() => openExternalUrl(updateNotice.url)}
+                    >
+                      Open release page
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           )}
 

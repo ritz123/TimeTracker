@@ -15,17 +15,17 @@ function ensureDataDir() {
 
 function loadPrefs() {
   ensureDataDir();
-  if (!fs.existsSync(PREFS_FILE)) return { storageMode: 'local', theme: 'default' };
+  if (!fs.existsSync(PREFS_FILE)) return { storageMode: 'local', theme: 'default', checkUpdatesOnStartup: false };
   try {
     const prefs = JSON.parse(fs.readFileSync(PREFS_FILE, 'utf-8'));
-    const merged = { theme: 'default', storageMode: 'local', ...prefs };
+    const merged = { theme: 'default', storageMode: 'local', checkUpdatesOnStartup: false, ...prefs };
     if (merged.storageMode === 'google') {
       merged.storageMode = 'local';
       savePrefs(merged);
     }
     return merged;
   } catch {
-    return { storageMode: 'local', theme: 'default' };
+    return { storageMode: 'local', theme: 'default', checkUpdatesOnStartup: false };
   }
 }
 
@@ -67,6 +67,13 @@ function registerIpcHandlers() {
   // Preferences
   ipcMain.handle('get-prefs', async () => loadPrefs());
   ipcMain.handle('save-prefs', async (_event, prefs) => { savePrefs(prefs); return true; });
+
+  ipcMain.handle('open-external', async (_event, url) => {
+    const s = String(url || '');
+    if (!/^https:\/\/github\.com\//i.test(s)) return false;
+    await shell.openExternal(s);
+    return true;
+  });
 }
 
 module.exports = { registerIpcHandlers };

@@ -7,8 +7,9 @@ import DayDetailPanel from './components/DayDetailPanel';
 import ItemForm from './components/ItemForm';
 import ExportModal from './components/ExportModal';
 import SettingsModal from './components/SettingsModal';
-import { loadData, saveData, loadPrefs, savePrefs } from './utils/storage';
+import { loadData, saveData, loadPrefs, savePrefs, openExternalUrl } from './utils/storage';
 import { applyTheme, normalizeThemeId } from './theme';
+import { checkForUpdates } from './utils/updates';
 import { formatDateKey, getItemsForDay } from './utils/dates';
 import { APP_NAME, APP_VERSION, APP_COPYRIGHT, APP_LICENSE } from './utils/appInfo';
 import { v4 as uuidv4 } from 'uuid';
@@ -73,6 +74,7 @@ export default function App() {
   const [pinnedDate, setPinnedDate] = useState(null);
   const [hoveredDate, setHoveredDate] = useState(null);
   const [theme, setTheme] = useState(() => normalizeThemeId(undefined));
+  const [updateBanner, setUpdateBanner] = useState(null);
 
   const displayDate = pinnedDate || hoveredDate || new Date();
   const displayItems = getItemsForDay(state.items, displayDate);
@@ -106,6 +108,25 @@ export default function App() {
       saveData(state.items).catch(() => {});
     }
   }, [state.items, state.loaded]);
+
+  useEffect(() => {
+    if (!state.loaded) return undefined;
+    let cancelled = false;
+    (async () => {
+      const prefs = await loadPrefs();
+      if (!prefs.checkUpdatesOnStartup || cancelled) return;
+      const r = await checkForUpdates();
+      if (cancelled || !r.ok || !r.isNewer || !r.htmlUrl) return;
+      setUpdateBanner({
+        version: r.remoteVersion,
+        url: r.htmlUrl,
+        title: r.name || `Version ${r.remoteVersion}`,
+      });
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [state.loaded]);
 
   const handleAddItem = useCallback((date) => {
     dispatch({ type: 'START_ADD', payload: date });
@@ -191,6 +212,39 @@ export default function App() {
         onExport={() => setShowExportModal(true)}
         onSettings={() => setShowSettings(true)}
       />
+
+      {updateBanner && (
+        <div
+          className="flex items-center justify-between gap-3 px-4 py-2 border-b text-sm"
+          style={{
+            backgroundColor: 'var(--accent-soft)',
+            borderColor: 'var(--border)',
+            color: 'var(--text)',
+          }}
+        >
+          <span>
+            <strong>New release:</strong> {updateBanner.title}
+          </span>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <button
+              type="button"
+              className="px-3 py-1 text-xs font-semibold rounded-lg text-white"
+              style={{ backgroundImage: 'var(--gradient-accent-btn)' }}
+              onClick={() => updateBanner.url && openExternalUrl(updateBanner.url)}
+            >
+              Open in browser
+            </button>
+            <button
+              type="button"
+              className="px-2 py-1 text-xs font-medium rounded-lg"
+              style={{ color: 'var(--text-muted)' }}
+              onClick={() => setUpdateBanner(null)}
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="flex flex-1 min-h-0 overflow-hidden">
         <MonthCalendar
