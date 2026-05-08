@@ -1,5 +1,5 @@
 /**
- * Renders marketing/slideshow.html to marketing/slideshow.pdf (A4, one slide per page).
+ * Renders marketing/slideshow.html to marketing/slideshow.pdf (A4 landscape, one slide per page).
  * Requires: npm install && npx playwright install chromium
  */
 import path from 'node:path';
@@ -19,6 +19,7 @@ try {
   await page.pdf({
     path: pdfPath,
     format: 'A4',
+    landscape: true,
     printBackground: true,
     margin: { top: '0', right: '0', bottom: '0', left: '0' },
   });
