@@ -55,6 +55,47 @@ export function compareSemver(a, b) {
  * }} UpdateCheckResult
  */
 
+/**
+ * Public Atom feed — works when api.github.com returns 403 (browser / anonymous API blocks).
+ * @param {string} owner
+ * @param {string} repo
+ * @returns {Promise<{ ok: true, tag: string, htmlUrl: string | null, name: string | null, publishedAt: string | null } | { ok: false, errorMessage: string }>}
+ */
+async function fetchLatestReleaseViaAtom(owner, repo) {
+  const atomUrl = `https://github.com/${owner}/${repo}/releases.atom`;
+  try {
+    const res = await fetch(atomUrl);
+    if (!res.ok) {
+      return { ok: false, errorMessage: `Releases feed HTTP ${res.status}` };
+    }
+    const xml = await res.text();
+    const firstEntry = xml.match(/<entry>([\s\S]*?)<\/entry>/);
+    if (!firstEntry) {
+      return { ok: false, errorMessage: 'No releases found in GitHub feed.' };
+    }
+    const block = firstEntry[1];
+    const titleMatch = block.match(/<title>([^<]*)<\/title>/);
+    const linkMatch =
+      block.match(/<link[^>]*rel="alternate"[^>]*href="([^"]+)"/) ||
+      block.match(/<link[^>]*href="([^"]+)"[^>]*rel="alternate"/);
+    const updatedMatch = block.match(/<updated>([^<]+)<\/updated>/);
+    const rawTitle = titleMatch?.[1]?.trim() || '';
+    const tag = normalizeVersionTag(rawTitle);
+    if (!tag) {
+      return { ok: false, errorMessage: 'Could not parse release version from feed.' };
+    }
+    return {
+      ok: true,
+      tag,
+      htmlUrl: linkMatch?.[1] || null,
+      name: rawTitle || tag,
+      publishedAt: updatedMatch?.[1] || null,
+    };
+  } catch (e) {
+    return { ok: false, errorMessage: e?.message || 'Failed to load releases feed.' };
+  }
+}
+
 /** @returns {Promise<UpdateCheckResult>} */
 export async function checkForUpdates() {
   const currentVersion = APP_VERSION;
@@ -79,7 +120,7 @@ export async function checkForUpdates() {
     const res = await fetch(apiUrl, {
       headers: {
         Accept: 'application/vnd.github+json',
-        'User-Agent': `TimeTracker/${currentVersion}`,
+        'X-GitHub-Api-Version': '2022-11-28',
       },
     });
 
@@ -96,22 +137,45 @@ export async function checkForUpdates() {
       };
     }
 
-    if (!res.ok) {
-      return {
-        ok: false,
-        currentVersion,
-        remoteVersion: null,
-        isNewer: false,
-        releaseUrl: `${APP_REPO_URL}/releases`,
-        htmlUrl: null,
-        name: null,
-        publishedAt: null,
-        errorMessage: `Could not reach GitHub (HTTP ${res.status}).`,
-      };
+    /** @type {string | null} */
+    let tag = null;
+    /** @type {string | null} */
+    let htmlUrl = null;
+    /** @type {string | null} */
+    let name = null;
+    /** @type {string | null} */
+    let publishedAt = null;
+
+    if (res.ok) {
+      const data = await res.json();
+      tag = normalizeVersionTag(data.tag_name);
+      htmlUrl = data.html_url || null;
+      name = data.name || tag;
+      publishedAt = data.published_at || null;
+    } else {
+      const atom = await fetchLatestReleaseViaAtom(slug.owner, slug.repo);
+      if (!atom.ok) {
+        return {
+          ok: false,
+          currentVersion,
+          remoteVersion: null,
+          isNewer: false,
+          releaseUrl: `${APP_REPO_URL}/releases`,
+          htmlUrl: null,
+          name: null,
+          publishedAt: null,
+          errorMessage:
+            res.status === 403 || res.status === 429
+              ? `GitHub API blocked this request (HTTP ${res.status}). Try again later or open Releases below.`
+              : `Could not reach GitHub (HTTP ${res.status}).`,
+        };
+      }
+      tag = atom.tag;
+      htmlUrl = atom.htmlUrl;
+      name = atom.name;
+      publishedAt = atom.publishedAt;
     }
 
-    const data = await res.json();
-    const tag = normalizeVersionTag(data.tag_name);
     const cmp = compareSemver(tag, currentVersion);
 
     return {
@@ -119,10 +183,10 @@ export async function checkForUpdates() {
       currentVersion,
       remoteVersion: tag,
       isNewer: cmp > 0,
-      releaseUrl: data.html_url || `${APP_REPO_URL}/releases`,
-      htmlUrl: data.html_url || null,
-      name: data.name || tag,
-      publishedAt: data.published_at || null,
+      releaseUrl: htmlUrl || `${APP_REPO_URL}/releases`,
+      htmlUrl,
+      name: name || tag,
+      publishedAt,
     };
   } catch (err) {
     return {
