@@ -1,24 +1,89 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { THEME_OPTIONS } from '../theme';
 
 export default function ThemePicker({ theme, onThemeChange }) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef(null);
+  const triggerRef = useRef(null);
+  const [menuStyle, setMenuStyle] = useState(
+    /** @type {React.CSSProperties | null} */ (null)
+  );
+
+  useLayoutEffect(() => {
+    if (!open) {
+      setMenuStyle(null);
+      return undefined;
+    }
+
+    if (!triggerRef.current) return undefined;
+
+    const updatePosition = () => {
+      const trigger = triggerRef.current;
+      if (!trigger) return;
+
+      const rect = trigger.getBoundingClientRect();
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const margin = 10;
+      const gap = 6;
+      const panelWidth = Math.min(256, vw - margin * 2);
+
+      let left = rect.right - panelWidth;
+      left = Math.max(margin, Math.min(left, vw - panelWidth - margin));
+
+      const spaceBelow = vh - rect.bottom - margin;
+      const spaceAbove = rect.top - margin;
+
+      const preferDown = spaceBelow >= spaceAbove;
+
+      /** @type {React.CSSProperties} */
+      const next = {
+        position: 'fixed',
+        left,
+        width: panelWidth,
+        zIndex: 50,
+      };
+
+      if (preferDown) {
+        next.top = rect.bottom + gap;
+        next.maxHeight = Math.min(420, Math.max(120, spaceBelow - gap));
+      } else {
+        next.bottom = vh - rect.top + gap;
+        next.maxHeight = Math.min(420, Math.max(120, spaceAbove - gap));
+      }
+
+      setMenuStyle(next);
+    };
+
+    updatePosition();
+
+    const vv = window.visualViewport;
+    vv?.addEventListener('resize', updatePosition);
+    vv?.addEventListener('scroll', updatePosition);
+    window.addEventListener('resize', updatePosition);
+
+    return () => {
+      vv?.removeEventListener('resize', updatePosition);
+      vv?.removeEventListener('scroll', updatePosition);
+      window.removeEventListener('resize', updatePosition);
+    };
+  }, [open]);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) return undefined;
     const close = (e) => {
       if (rootRef.current && !rootRef.current.contains(e.target)) {
         setOpen(false);
       }
     };
-    document.addEventListener('mousedown', close);
-    return () => document.removeEventListener('mousedown', close);
+    document.addEventListener('pointerdown', close);
+    return () => document.removeEventListener('pointerdown', close);
   }, [open]);
 
   return (
     <div className="relative" ref={rootRef}>
       <button
+        ref={triggerRef}
         type="button"
         onClick={() => setOpen((o) => !o)}
         className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg transition-colors text-white/90 hover:bg-white/15 hover:text-white text-sm font-medium"
@@ -37,13 +102,15 @@ export default function ThemePicker({ theme, onThemeChange }) {
         <span className="hidden sm:inline">Theme</span>
       </button>
 
-      {open && (
+      {open && menuStyle && (
         <div
-          className="absolute right-0 top-full mt-1 z-50 w-64 max-h-[min(70vh,420px)] overflow-y-auto rounded-xl border py-1 shadow-xl"
+          className="overflow-y-auto overscroll-contain rounded-xl border py-1 shadow-xl"
           style={{
+            ...menuStyle,
             backgroundColor: 'var(--modal-surface)',
             borderColor: 'var(--border)',
             boxShadow: 'var(--shadow-item-hover)',
+            paddingBottom: 'max(0.25rem, env(safe-area-inset-bottom, 0px))',
           }}
           role="listbox"
           aria-label="Choose theme"
