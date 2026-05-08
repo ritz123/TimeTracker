@@ -4,20 +4,18 @@ import {
   APP_LICENSE, APP_LICENSE_URL, APP_CONTACT_EMAIL, APP_REPO_URL, APP_COPYRIGHT,
   APP_RELEASES_URL,
 } from '../utils/appInfo';
-import { THEME_OPTIONS } from '../theme';
 import { checkForUpdates } from '../utils/updates';
 import { loadPrefs, savePrefs, openExternalUrl } from '../utils/storage';
 
 const TABS = [
-  { id: 'appearance', label: 'Appearance' },
   { id: 'storage', label: 'Storage' },
   { id: 'updates', label: 'Updates' },
   { id: 'about', label: 'About' },
   { id: 'contact', label: 'Contact' },
 ];
 
-export default function SettingsModal({ theme, onThemeChange, onClose }) {
-  const [activeTab, setActiveTab] = useState('appearance');
+export default function SettingsModal({ onClose }) {
+  const [activeTab, setActiveTab] = useState('storage');
   const [checkOnStartup, setCheckOnStartup] = useState(false);
   const [updateBusy, setUpdateBusy] = useState(false);
   const [updateNotice, setUpdateNotice] = useState(null);
@@ -125,45 +123,6 @@ export default function SettingsModal({ theme, onThemeChange, onClose }) {
         </div>
 
         <div className="flex-1 overflow-y-auto p-6">
-          {activeTab === 'appearance' && (
-            <div className="space-y-3">
-              <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-                Choose a color theme for the app. Your choice is saved on this device.
-              </p>
-              {THEME_OPTIONS.map((opt) => (
-                <button
-                  key={opt.id}
-                  type="button"
-                  onClick={() => onThemeChange(opt.id)}
-                  className="w-full text-left p-4 rounded-xl border-2 transition-all"
-                  style={{
-                    borderColor: theme === opt.id ? 'var(--modal-tab-active-border)' : 'var(--border)',
-                    backgroundColor: theme === opt.id ? 'var(--modal-storage-bg)' : 'transparent',
-                  }}
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <h3 className="text-sm font-bold" style={{ color: 'var(--text)' }}>
-                        {opt.label}
-                      </h3>
-                      <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
-                        {opt.description}
-                      </p>
-                    </div>
-                    {theme === opt.id && (
-                      <span
-                        className="text-xs font-semibold px-2 py-0.5 rounded-full flex-shrink-0"
-                        style={{ color: 'var(--modal-badge-text)', backgroundColor: 'var(--modal-badge-bg)' }}
-                      >
-                        Active
-                      </span>
-                    )}
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
-
           {activeTab === 'storage' && (
             <div className="space-y-5">
               <p className="text-sm" style={{ color: 'var(--text-muted)' }}>

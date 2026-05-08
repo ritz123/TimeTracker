@@ -294,11 +294,7 @@ export default function App() {
       </div>
 
       {showSettings && (
-        <SettingsModal
-          theme={theme}
-          onThemeChange={handleThemeChange}
-          onClose={() => setShowSettings(false)}
-        />
+        <SettingsModal onClose={() => setShowSettings(false)} />
       )}
     </div>
   );
