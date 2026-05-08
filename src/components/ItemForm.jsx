@@ -113,32 +113,12 @@ export default function ItemForm({ editingItem, selectedDate, onSave, onCancel }
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_220px] gap-4 items-stretch flex-1 min-h-0">
-            <div className="flex flex-col gap-3 min-h-0 w-full min-w-0 md:flex-1 md:min-h-0">
-              <input
-                ref={titleRef}
-                type="text"
-                placeholder="What did you work on?"
-                value={form.title}
-                onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-                className={`${inputClass} focus:ring-[var(--accent-ring)] shrink-0`}
-                style={inputStyle}
-              />
-              <textarea
-                placeholder="Details (optional)"
-                value={form.description}
-                onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-                rows={3}
-                className={`${inputClass} focus:ring-[var(--accent-ring)] min-h-[14rem] md:min-h-0 flex-1`}
-                style={inputStyle}
-              />
-            </div>
-
-            <div className="flex flex-row flex-wrap md:flex-col gap-3 md:gap-3 items-center md:items-stretch w-full md:w-auto shrink-0">
+          <div className="flex flex-col gap-3 flex-1 min-h-0">
+            <div className="flex flex-row flex-wrap items-center gap-3 shrink-0">
               <select
                 value={form.category}
                 onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
-                className={`${inputClass} focus:ring-[var(--accent-ring)] flex-1 min-w-[10rem] md:min-w-0 md:w-full`}
+                className={`${inputClass} focus:ring-[var(--accent-ring)] flex-1 min-w-[10rem] md:max-w-xs`}
                 style={inputStyle}
               >
                 {CATEGORIES.map((cat) => (
@@ -148,7 +128,7 @@ export default function ItemForm({ editingItem, selectedDate, onSave, onCancel }
                 ))}
               </select>
 
-              <label className="flex items-center gap-2.5 cursor-pointer shrink-0 md:w-full py-1">
+              <label className="flex items-center gap-2.5 cursor-pointer shrink-0 py-1">
                 <input
                   type="checkbox"
                   checked={form.isAchievement}
@@ -161,6 +141,24 @@ export default function ItemForm({ editingItem, selectedDate, onSave, onCancel }
                 </span>
               </label>
             </div>
+
+            <input
+              ref={titleRef}
+              type="text"
+              placeholder="What did you work on?"
+              value={form.title}
+              onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+              className={`${inputClass} focus:ring-[var(--accent-ring)] shrink-0`}
+              style={inputStyle}
+            />
+            <textarea
+              placeholder="Details (optional)"
+              value={form.description}
+              onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+              rows={3}
+              className={`${inputClass} focus:ring-[var(--accent-ring)] min-h-[14rem] md:min-h-0 flex-1`}
+              style={inputStyle}
+            />
           </div>
 
           <div
