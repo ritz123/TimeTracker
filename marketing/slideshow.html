@@ -97,6 +97,49 @@
       letter-spacing: 0.04em;
       text-transform: uppercase;
     }
+    .hero-url {
+      margin: 1.25rem 0 0;
+      padding: 0 0.5rem;
+      font-size: clamp(0.8rem, 2vw, 0.95rem);
+      font-weight: 600;
+      line-height: 1.45;
+      word-break: break-all;
+    }
+    .hero-url a {
+      color: #e0e7ff;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .hero-url a:hover {
+      color: #ffffff;
+    }
+
+    .software-url-box {
+      margin: 0 0 1.25rem;
+      padding: 0.85rem 1rem;
+      border-radius: 10px;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+    .software-url-box strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--faint);
+    }
+    .software-url-box a {
+      font-weight: 700;
+      color: var(--accent);
+      text-decoration: none;
+      word-break: break-all;
+    }
+    .software-url-box a:hover {
+      text-decoration: underline;
+    }
 
     h2 {
       margin: 0 0 0.75rem;
@@ -359,6 +402,9 @@
         <h1>Time Tracker</h1>
         <p>Track your work. Celebrate your wins.</p>
         <span class="badge">Desktop · Local-first · Free software</span>
+        <p class="hero-url">
+          <a href="https://github.com/ritz123/TimeTracker" target="_blank" rel="noopener noreferrer">https://github.com/ritz123/TimeTracker</a>
+        </p>
       </section>
 
       <!-- 2 -->
@@ -431,6 +477,10 @@
         <p class="lead">
           Time Tracker is released under the <strong>GNU GPL v2</strong>. Inspect the code, suggest improvements, or fork for your team.
         </p>
+        <div class="software-url-box">
+          <strong>Get the software</strong>
+          <a href="https://github.com/ritz123/TimeTracker" target="_blank" rel="noopener noreferrer">https://github.com/ritz123/TimeTracker</a>
+        </div>
         <div class="cta-row">
           <a class="btn btn-primary" href="https://github.com/ritz123/TimeTracker" target="_blank" rel="noopener noreferrer">View on GitHub</a>
           <a class="btn btn-secondary" href="https://github.com/ritz123/TimeTracker/releases" target="_blank" rel="noopener noreferrer">Download releases</a>
