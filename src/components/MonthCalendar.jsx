@@ -15,7 +15,7 @@ export default function MonthCalendar({ monthOffset, items, focusedDate, hovered
   }
 
   return (
-    <div className="w-[340px] flex-shrink-0 flex flex-col p-4 min-h-0">
+    <div className="w-full min-w-0 shrink-0 md:w-[340px] md:flex-shrink-0 flex flex-col p-3 sm:p-4 min-h-0 max-h-[48dvh] overflow-y-auto overscroll-contain md:max-h-none md:overflow-y-visible">
       <div className="grid grid-cols-[32px_repeat(7,1fr)] gap-px mb-1">
         <div
           className="text-[9px] font-bold uppercase tracking-wider text-center py-1.5"

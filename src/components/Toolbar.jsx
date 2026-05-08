@@ -17,23 +17,25 @@ export default function Toolbar({
 
   return (
     <div
-      className="flex items-center justify-between px-6 py-3 shadow-lg"
+      className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between px-3 py-2.5 sm:px-6 sm:py-3 shadow-lg min-w-0 md:gap-4"
       style={{
         backgroundImage: 'var(--gradient-toolbar)',
         boxShadow: 'var(--shadow-toolbar)',
       }}
     >
       {/* App name + nav */}
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2 mr-2">
+      <div className="flex items-center gap-2 sm:gap-4 min-w-0 shrink">
+        <div className="flex items-center gap-2 mr-1 sm:mr-2 shrink-0">
           <svg className="w-5 h-5 text-white/90" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <circle cx="12" cy="12" r="10" strokeWidth="1.5" />
             <path d="M12 6v6l4 2" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
-          <span className="text-sm font-bold text-white tracking-wide">{APP_NAME}</span>
+          <span className="text-sm font-bold text-white tracking-wide truncate max-w-[9rem] sm:max-w-none">
+            {APP_NAME}
+          </span>
         </div>
 
-        <div className="flex items-center gap-1 border-l border-white/20 pl-4">
+        <div className="flex items-center gap-0.5 sm:gap-1 border-l border-white/20 pl-2 sm:pl-4 min-w-0">
           <button
             onClick={onPrevMonth}
             className="p-2 rounded-lg transition-colors text-white/90 hover:bg-white/15 hover:text-white"
@@ -46,7 +48,7 @@ export default function Toolbar({
 
           <button
             onClick={onToday}
-            className="px-3 py-1.5 text-sm font-medium rounded-lg transition-colors text-white/90 hover:bg-white/15 hover:text-white"
+            className="px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg transition-colors text-white/90 hover:bg-white/15 hover:text-white"
           >
             Today
           </button>
@@ -63,13 +65,13 @@ export default function Toolbar({
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
-        <h1 className="text-lg font-semibold text-white tracking-tight">
+      <div className="flex justify-center md:flex-1 md:min-w-0 md:px-2">
+        <h1 className="text-base sm:text-lg font-semibold text-white tracking-tight truncate text-center">
           {formatMonthYear(month)}
         </h1>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center justify-center md:justify-end gap-1.5 sm:gap-2 shrink-0">
         <ThemePicker theme={theme} onThemeChange={onThemeChange} />
         <button
           onClick={onSettings}
@@ -84,12 +86,13 @@ export default function Toolbar({
 
         <button
           onClick={onExport}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors shadow-sm bg-[var(--surface)] text-[var(--text-on-accent)] hover:bg-[var(--accent-soft-hover)]"
+          className="flex items-center gap-1.5 sm:gap-2 px-2.5 py-2 sm:px-4 text-sm font-medium rounded-lg transition-colors shadow-sm bg-[var(--surface)] text-[var(--text-on-accent)] hover:bg-[var(--accent-soft-hover)]"
+          title="Export"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
-          Export
+          <span className="hidden sm:inline">Export</span>
         </button>
       </div>
     </div>

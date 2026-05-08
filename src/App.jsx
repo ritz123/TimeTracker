@@ -190,7 +190,7 @@ export default function App() {
   if (!state.loaded) {
     return (
       <div
-        className="flex items-center justify-center h-screen"
+        className="flex flex-1 items-center justify-center min-h-0"
         style={{ backgroundImage: 'var(--gradient-page)' }}
       >
         <div className="text-sm font-medium" style={{ color: 'var(--accent-muted)' }}>
@@ -201,7 +201,10 @@ export default function App() {
   }
 
   return (
-    <div className="flex flex-col h-screen" style={{ backgroundImage: 'var(--gradient-page)' }}>
+    <div
+      className="flex flex-col flex-1 min-h-0 overflow-hidden"
+      style={{ backgroundImage: 'var(--gradient-page)' }}
+    >
       <Toolbar
         monthOffset={state.monthOffset}
         theme={theme}
@@ -246,7 +249,7 @@ export default function App() {
         </div>
       )}
 
-      <div className="flex flex-1 min-h-0 overflow-hidden">
+      <div className="flex flex-1 min-h-0 flex-col md:flex-row overflow-hidden">
         <MonthCalendar
           monthOffset={state.monthOffset}
           items={state.items}
@@ -282,15 +285,15 @@ export default function App() {
 
       {/* Copyright footer */}
       <div
-        className="flex items-center justify-between px-6 py-1.5 border-t text-[10px]"
+        className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 px-3 py-1.5 sm:px-6 border-t text-[10px] shrink-0"
         style={{
           backgroundColor: 'var(--footer-bg)',
           borderColor: 'var(--border)',
           color: 'var(--footer-text)',
         }}
       >
-        <span>{APP_COPYRIGHT} &middot; {APP_LICENSE}</span>
-        <span>{APP_NAME} v{APP_VERSION}</span>
+        <span className="min-w-0 truncate">{APP_COPYRIGHT} &middot; {APP_LICENSE}</span>
+        <span className="shrink-0">{APP_NAME} v{APP_VERSION}</span>
       </div>
 
       {showSettings && (

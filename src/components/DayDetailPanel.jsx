@@ -8,7 +8,7 @@ export default function DayDetailPanel({ date, items, isPinned, onEdit, onDelete
 
   return (
     <div
-      className="flex-1 flex flex-col overflow-hidden border-l"
+      className="flex-1 flex flex-col overflow-hidden min-w-0 border-t md:border-t-0 md:border-l"
       style={{
         backgroundColor: 'var(--surface)',
         borderColor: 'var(--border)',
