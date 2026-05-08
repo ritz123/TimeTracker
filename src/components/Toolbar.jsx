@@ -1,8 +1,18 @@
 import React from 'react';
 import { formatMonthYear, getMonthGrid } from '../utils/dates';
 import { APP_NAME } from '../utils/appInfo';
+import ThemePicker from './ThemePicker';
 
-export default function Toolbar({ monthOffset, onPrevMonth, onNextMonth, onToday, onExport, onSettings }) {
+export default function Toolbar({
+  monthOffset,
+  theme,
+  onThemeChange,
+  onPrevMonth,
+  onNextMonth,
+  onToday,
+  onExport,
+  onSettings,
+}) {
   const { month } = getMonthGrid(monthOffset);
 
   return (
@@ -60,6 +70,7 @@ export default function Toolbar({ monthOffset, onPrevMonth, onNextMonth, onToday
       </div>
 
       <div className="flex items-center gap-2">
+        <ThemePicker theme={theme} onThemeChange={onThemeChange} />
         <button
           onClick={onSettings}
           className="p-2 rounded-lg transition-colors text-white/90 hover:bg-white/15 hover:text-white"

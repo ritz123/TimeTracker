@@ -183,6 +183,8 @@ export default function App() {
     <div className="flex flex-col h-screen" style={{ backgroundImage: 'var(--gradient-page)' }}>
       <Toolbar
         monthOffset={state.monthOffset}
+        theme={theme}
+        onThemeChange={handleThemeChange}
         onPrevMonth={() => dispatch({ type: 'PREV_MONTH' })}
         onNextMonth={() => dispatch({ type: 'NEXT_MONTH' })}
         onToday={() => dispatch({ type: 'TODAY' })}

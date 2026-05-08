@@ -1,11 +1,21 @@
-/** @typedef {'default' | 'dark' | 'warm'} ThemeId */
+/** @typedef {'default' | 'dark' | 'warm' | 'forest' | 'ocean' | 'rose'} ThemeId */
 
-export const THEME_IDS = /** @type {const} */ (['default', 'dark', 'warm']);
+export const THEME_IDS = /** @type {const} */ ([
+  'default',
+  'dark',
+  'warm',
+  'forest',
+  'ocean',
+  'rose',
+]);
 
 export const THEME_OPTIONS = [
   { id: 'default', label: 'Light', description: 'Cool slate surfaces with indigo accents' },
   { id: 'dark', label: 'Dark', description: 'Low-light slate and violet tones' },
   { id: 'warm', label: 'Warm', description: 'Cream and amber, easy on the eyes' },
+  { id: 'forest', label: 'Forest', description: 'Emerald greens and mint highlights' },
+  { id: 'ocean', label: 'Ocean', description: 'Sky blues and cyan accents' },
+  { id: 'rose', label: 'Rose', description: 'Soft pinks and rose highlights' },
 ];
 
 /** @param {unknown} id */
