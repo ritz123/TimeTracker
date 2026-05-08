@@ -2,9 +2,42 @@ import React from 'react';
 import { formatDayFull, isToday } from '../utils/dates';
 import { getCategoryColor, getCategoryLabel } from '../utils/categories';
 import { format } from 'date-fns';
+import ItemForm from './ItemForm';
 
-export default function DayDetailPanel({ date, items, isPinned, onEdit, onDelete, onAdd, onPin }) {
+export default function DayDetailPanel({
+  date,
+  items,
+  isPinned,
+  onEdit,
+  onDelete,
+  onAdd,
+  onPin,
+  editingItem,
+  selectedDate,
+  onSave,
+  onCancel,
+}) {
   const today = isToday(date);
+  const formOpen = !!(editingItem || selectedDate);
+
+  if (formOpen) {
+    return (
+      <div
+        className="flex-1 flex flex-col overflow-hidden min-h-0 min-w-0 border-t md:border-t-0 md:border-l"
+        style={{
+          backgroundColor: 'var(--surface)',
+          borderColor: 'var(--border)',
+        }}
+      >
+        <ItemForm
+          editingItem={editingItem}
+          selectedDate={selectedDate}
+          onSave={onSave}
+          onCancel={onCancel}
+        />
+      </div>
+    );
+  }
 
   return (
     <div

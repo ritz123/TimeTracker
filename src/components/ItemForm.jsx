@@ -68,16 +68,21 @@ export default function ItemForm({ editingItem, selectedDate, onSave, onCancel }
       />
 
       <div
-        className="border-t backdrop-blur-sm max-md:fixed max-md:left-0 max-md:right-0 max-md:bottom-0 max-md:z-[45] max-md:max-h-[min(92dvh,100dvh)] max-md:flex max-md:flex-col max-md:rounded-t-2xl max-md:border-x max-md:overflow-hidden max-md:shadow-2xl"
+        className="
+          flex-1 flex flex-col min-h-0 overflow-hidden
+          border-t backdrop-blur-sm
+          max-md:fixed max-md:left-0 max-md:right-0 max-md:bottom-0 max-md:z-[45]
+          max-md:max-h-[min(92dvh,100dvh)] max-md:flex max-md:flex-col max-md:rounded-t-2xl max-md:border-x max-md:shadow-2xl
+          max-md:bg-[var(--surface-glass)]
+          md:border-t-0 md:backdrop-blur-none md:bg-transparent md:shadow-none
+        "
         style={{
           borderColor: 'var(--form-border)',
-          backgroundColor: 'var(--surface-glass)',
-          boxShadow: 'var(--shadow-form)',
         }}
       >
         <form
           onSubmit={handleSubmit}
-          className="flex flex-col flex-1 min-h-0 px-4 py-4 md:px-6 md:py-4 max-md:overflow-y-auto max-md:overscroll-contain pb-[max(1rem,env(safe-area-inset-bottom,0px))]"
+          className="flex flex-col flex-1 min-h-0 px-4 py-4 md:px-6 md:py-4 overflow-y-auto overscroll-contain max-md:pb-[max(1rem,env(safe-area-inset-bottom,0px))]"
         >
           <div className="flex items-center justify-between mb-3 shrink-0">
             <h2 className="text-base font-bold pr-2" style={{ color: 'var(--text)' }}>
@@ -108,8 +113,8 @@ export default function ItemForm({ editingItem, selectedDate, onSave, onCancel }
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_220px] gap-4 items-start flex-1 min-h-0">
-            <div className="flex flex-col gap-3 min-h-0 md:min-h-0 w-full min-w-0">
+          <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_220px] gap-4 items-stretch flex-1 min-h-0">
+            <div className="flex flex-col gap-3 min-h-0 w-full min-w-0 md:flex-1 md:min-h-0">
               <input
                 ref={titleRef}
                 type="text"
@@ -124,7 +129,7 @@ export default function ItemForm({ editingItem, selectedDate, onSave, onCancel }
                 value={form.description}
                 onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
                 rows={3}
-                className={`${inputClass} focus:ring-[var(--accent-ring)] min-h-[14rem] md:min-h-[4.5rem] flex-1 md:flex-none`}
+                className={`${inputClass} focus:ring-[var(--accent-ring)] min-h-[14rem] md:min-h-0 flex-1`}
                 style={inputStyle}
               />
             </div>
@@ -158,7 +163,10 @@ export default function ItemForm({ editingItem, selectedDate, onSave, onCancel }
             </div>
           </div>
 
-          <div className="flex justify-end gap-2 mt-4 shrink-0 pt-1 max-md:border-t md:pt-0" style={{ borderColor: 'var(--form-border)' }}>
+          <div
+            className="flex justify-end gap-2 mt-4 shrink-0 pt-1 max-md:border-t md:border-t md:pt-4"
+            style={{ borderColor: 'var(--form-border)' }}
+          >
             <button
               type="button"
               onClick={onCancel}

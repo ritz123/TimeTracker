@@ -4,7 +4,6 @@ import SplashScreen from './components/SplashScreen';
 import Toolbar from './components/Toolbar';
 import MonthCalendar from './components/MonthCalendar';
 import DayDetailPanel from './components/DayDetailPanel';
-import ItemForm from './components/ItemForm';
 import ExportModal from './components/ExportModal';
 import SettingsModal from './components/SettingsModal';
 import { loadData, saveData, loadPrefs, savePrefs, openExternalUrl } from './utils/storage';
@@ -266,15 +265,12 @@ export default function App() {
           onDelete={handleDeleteItem}
           onAdd={handleAddItem}
           onPin={handleTogglePin}
+          editingItem={state.editingItem}
+          selectedDate={state.selectedDate}
+          onSave={handleSave}
+          onCancel={() => dispatch({ type: 'CANCEL_FORM' })}
         />
       </div>
-
-      <ItemForm
-        editingItem={state.editingItem}
-        selectedDate={state.selectedDate}
-        onSave={handleSave}
-        onCancel={() => dispatch({ type: 'CANCEL_FORM' })}
-      />
 
       {showExportModal && (
         <ExportModal
