@@ -48,7 +48,7 @@ export default function ItemForm({ editingItem, selectedDate, onSave, onCancel }
   if (!isOpen) return null;
 
   const inputClass =
-    'w-full px-3 py-2 text-sm rounded-lg focus:outline-none focus:ring-2 resize-none bg-[var(--surface)]';
+    'w-full px-3 py-2.5 text-base md:text-sm rounded-lg focus:outline-none focus:ring-2 resize-none bg-[var(--surface)]';
   const inputStyle = {
     borderWidth: 1,
     borderStyle: 'solid',
@@ -58,133 +58,146 @@ export default function ItemForm({ editingItem, selectedDate, onSave, onCancel }
   };
 
   return (
-    <div
-      className="border-t backdrop-blur-sm"
-      style={{
-        borderColor: 'var(--form-border)',
-        backgroundColor: 'var(--surface-glass)',
-        boxShadow: 'var(--shadow-form)',
-      }}
-    >
-      <form onSubmit={handleSubmit} className="px-6 py-4">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-base font-bold" style={{ color: 'var(--text)' }}>
-            {editingItem ? 'Edit Work Item' : 'Add Work Item'}
-            {dateLabel && (
-              <span className="ml-2 text-sm font-normal" style={{ color: 'var(--text-muted)' }}>
-                — {dateLabel}
-              </span>
-            )}
-          </h2>
-          <button
-            type="button"
-            onClick={onCancel}
-            className="p-1.5 rounded-lg transition-colors"
-            style={{ color: 'var(--text-muted)' }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = 'var(--surface-elevated)';
-              e.currentTarget.style.color = 'var(--text)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent';
-              e.currentTarget.style.color = 'var(--text-muted)';
-            }}
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
+    <>
+      {/* Mobile: tap outside to close + lift sheet above footer chrome */}
+      <button
+        type="button"
+        className="md:hidden fixed inset-0 z-[44] bg-[var(--modal-backdrop)]"
+        onClick={onCancel}
+        aria-label="Close form"
+      />
 
-        <div className="grid grid-cols-[1fr_200px] gap-4 items-start">
-          <div className="space-y-3">
-            <input
-              ref={titleRef}
-              type="text"
-              placeholder="What did you work on?"
-              value={form.title}
-              onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-              className={`${inputClass} focus:ring-[var(--accent-ring)]`}
-              style={inputStyle}
-            />
-            <textarea
-              placeholder="Details (optional)"
-              value={form.description}
-              onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-              rows={2}
-              className={`${inputClass} focus:ring-[var(--accent-ring)]`}
-              style={inputStyle}
-            />
-          </div>
-
-          <div className="space-y-3">
-            <select
-              value={form.category}
-              onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
-              className={`${inputClass} focus:ring-[var(--accent-ring)]`}
-              style={inputStyle}
+      <div
+        className="border-t backdrop-blur-sm max-md:fixed max-md:left-0 max-md:right-0 max-md:bottom-0 max-md:z-[45] max-md:max-h-[min(92dvh,100dvh)] max-md:flex max-md:flex-col max-md:rounded-t-2xl max-md:border-x max-md:overflow-hidden max-md:shadow-2xl"
+        style={{
+          borderColor: 'var(--form-border)',
+          backgroundColor: 'var(--surface-glass)',
+          boxShadow: 'var(--shadow-form)',
+        }}
+      >
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col flex-1 min-h-0 px-4 py-4 md:px-6 md:py-4 max-md:overflow-y-auto max-md:overscroll-contain pb-[max(1rem,env(safe-area-inset-bottom,0px))]"
+        >
+          <div className="flex items-center justify-between mb-3 shrink-0">
+            <h2 className="text-base font-bold pr-2" style={{ color: 'var(--text)' }}>
+              {editingItem ? 'Edit Work Item' : 'Add Work Item'}
+              {dateLabel && (
+                <span className="ml-2 text-sm font-normal block sm:inline" style={{ color: 'var(--text-muted)' }}>
+                  — {dateLabel}
+                </span>
+              )}
+            </h2>
+            <button
+              type="button"
+              onClick={onCancel}
+              className="p-1.5 rounded-lg transition-colors shrink-0"
+              style={{ color: 'var(--text-muted)' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--surface-elevated)';
+                e.currentTarget.style.color = 'var(--text)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.color = 'var(--text-muted)';
+              }}
             >
-              {CATEGORIES.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.label}
-                </option>
-              ))}
-            </select>
-
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={form.isAchievement}
-                onChange={(e) => setForm((f) => ({ ...f, isAchievement: e.target.checked }))}
-                className="w-4 h-4 rounded border-[var(--form-border)]"
-                style={{ accentColor: 'var(--accent)' }}
-              />
-              <span className="text-sm" style={{ color: 'var(--text)' }}>
-                Mark as Achievement
-              </span>
-            </label>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
           </div>
-        </div>
 
-        <div className="flex justify-end gap-2 mt-4">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="px-4 py-2 text-sm font-medium rounded-lg transition-colors"
-            style={{
-              color: 'var(--form-secondary-text)',
-              backgroundColor: 'var(--form-secondary-bg)',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = 'var(--form-secondary-hover)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'var(--form-secondary-bg)';
-            }}
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={!form.title.trim()}
-            className="px-4 py-2 text-sm font-medium text-white rounded-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-            style={{
-              backgroundImage: 'var(--gradient-accent-btn)',
-              boxShadow: 'var(--shadow-accent-btn)',
-            }}
-            onMouseEnter={(e) => {
-              if (!e.currentTarget.disabled) {
-                e.currentTarget.style.backgroundImage = 'var(--gradient-accent-btn-hover)';
-              }
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundImage = 'var(--gradient-accent-btn)';
-            }}
-          >
-            {editingItem ? 'Update' : 'Add Item'}
-          </button>
-        </div>
-      </form>
-    </div>
+          <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_220px] gap-4 items-start flex-1 min-h-0">
+            <div className="flex flex-col gap-3 min-h-0 md:min-h-0 w-full min-w-0">
+              <input
+                ref={titleRef}
+                type="text"
+                placeholder="What did you work on?"
+                value={form.title}
+                onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+                className={`${inputClass} focus:ring-[var(--accent-ring)] shrink-0`}
+                style={inputStyle}
+              />
+              <textarea
+                placeholder="Details (optional)"
+                value={form.description}
+                onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+                rows={3}
+                className={`${inputClass} focus:ring-[var(--accent-ring)] min-h-[14rem] md:min-h-[4.5rem] flex-1 md:flex-none`}
+                style={inputStyle}
+              />
+            </div>
+
+            <div className="flex flex-row flex-wrap md:flex-col gap-3 md:gap-3 items-center md:items-stretch w-full md:w-auto shrink-0">
+              <select
+                value={form.category}
+                onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
+                className={`${inputClass} focus:ring-[var(--accent-ring)] flex-1 min-w-[10rem] md:min-w-0 md:w-full`}
+                style={inputStyle}
+              >
+                {CATEGORIES.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.label}
+                  </option>
+                ))}
+              </select>
+
+              <label className="flex items-center gap-2.5 cursor-pointer shrink-0 md:w-full py-1">
+                <input
+                  type="checkbox"
+                  checked={form.isAchievement}
+                  onChange={(e) => setForm((f) => ({ ...f, isAchievement: e.target.checked }))}
+                  className="w-5 h-5 md:w-4 md:h-4 rounded border-[var(--form-border)] shrink-0"
+                  style={{ accentColor: 'var(--accent)' }}
+                />
+                <span className="text-sm whitespace-nowrap" style={{ color: 'var(--text)' }}>
+                  Mark as Achievement
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2 mt-4 shrink-0 pt-1 max-md:border-t md:pt-0" style={{ borderColor: 'var(--form-border)' }}>
+            <button
+              type="button"
+              onClick={onCancel}
+              className="px-4 py-2.5 md:py-2 text-sm font-medium rounded-lg transition-colors"
+              style={{
+                color: 'var(--form-secondary-text)',
+                backgroundColor: 'var(--form-secondary-bg)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--form-secondary-hover)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--form-secondary-bg)';
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={!form.title.trim()}
+              className="px-4 py-2.5 md:py-2 text-sm font-medium text-white rounded-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{
+                backgroundImage: 'var(--gradient-accent-btn)',
+                boxShadow: 'var(--shadow-accent-btn)',
+              }}
+              onMouseEnter={(e) => {
+                if (!e.currentTarget.disabled) {
+                  e.currentTarget.style.backgroundImage = 'var(--gradient-accent-btn-hover)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundImage = 'var(--gradient-accent-btn)';
+              }}
+            >
+              {editingItem ? 'Update' : 'Add Item'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </>
   );
 }
