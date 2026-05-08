@@ -1,5 +1,5 @@
 import React from 'react';
-import { formatDayFull, isToday, formatDateKey } from '../utils/dates';
+import { formatDayFull, isToday } from '../utils/dates';
 import { getCategoryColor, getCategoryLabel } from '../utils/categories';
 import { format } from 'date-fns';
 
@@ -7,31 +7,53 @@ export default function DayDetailPanel({ date, items, isPinned, onEdit, onDelete
   const today = isToday(date);
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden bg-white border-l border-slate-200">
-      {/* Header */}
-      <div className={`px-6 py-4 border-b flex items-center justify-between ${
-        today ? 'bg-gradient-to-r from-indigo-500 to-violet-500' : 'bg-slate-50 border-slate-200'
-      }`}>
+    <div
+      className="flex-1 flex flex-col overflow-hidden border-l"
+      style={{
+        backgroundColor: 'var(--surface)',
+        borderColor: 'var(--border)',
+      }}
+    >
+      <div
+        className="px-6 py-4 border-b flex items-center justify-between"
+        style={{
+          backgroundImage: today ? 'var(--gradient-day-header-today)' : undefined,
+          backgroundColor: today ? undefined : 'var(--day-header-bg)',
+          borderColor: 'var(--day-header-border)',
+        }}
+      >
         <div>
-          <h2 className={`text-lg font-bold ${today ? 'text-white' : 'text-slate-800'}`}>
+          <h2
+            className="text-lg font-bold"
+            style={{ color: today ? 'var(--text-inverse)' : 'var(--day-header-text)' }}
+          >
             {formatDayFull(date)}
           </h2>
-          <p className={`text-xs mt-0.5 ${today ? 'text-indigo-200' : 'text-slate-400'}`}>
+          <p
+            className="text-xs mt-0.5"
+            style={{ color: today ? 'var(--text-inverse-muted)' : 'var(--day-header-sub)' }}
+          >
             {items.length} {items.length === 1 ? 'item' : 'items'}
             {today && ' · Today'}
           </p>
         </div>
 
         <div className="flex items-center gap-1.5">
-          {/* Pin/unpin toggle */}
           <button
             onClick={onPin}
-            className={`p-2 rounded-lg transition-colors ${
-              today ? 'hover:bg-white/20' : 'hover:bg-slate-200'
-            } ${isPinned
-              ? (today ? 'text-white bg-white/20' : 'text-indigo-600 bg-indigo-100')
-              : (today ? 'text-indigo-200' : 'text-slate-400')
-            }`}
+            className="p-2 rounded-lg transition-colors"
+            style={{
+              backgroundColor: isPinned ? (today ? 'rgba(255,255,255,0.2)' : 'var(--day-pin-active-bg)') : undefined,
+              color: isPinned
+                ? (today ? 'var(--text-inverse)' : 'var(--day-pin-active)')
+                : (today ? 'var(--text-inverse-muted)' : 'var(--day-pin-muted)'),
+            }}
+            onMouseEnter={(e) => {
+              if (!isPinned) e.currentTarget.style.backgroundColor = today ? 'rgba(255,255,255,0.2)' : 'var(--day-pin-hover-bg)';
+            }}
+            onMouseLeave={(e) => {
+              if (!isPinned) e.currentTarget.style.backgroundColor = 'transparent';
+            }}
             title={isPinned ? 'Unpin (follow hover)' : 'Pin this day'}
           >
             <svg className="w-4 h-4" fill={isPinned ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
@@ -39,14 +61,20 @@ export default function DayDetailPanel({ date, items, isPinned, onEdit, onDelete
             </svg>
           </button>
 
-          {/* Add */}
           <button
             onClick={() => onAdd(date)}
-            className={`p-2 rounded-lg transition-colors ${
-              today
-                ? 'hover:bg-white/20 text-indigo-200 hover:text-white'
-                : 'hover:bg-indigo-100 text-slate-400 hover:text-indigo-600'
-            }`}
+            className="p-2 rounded-lg transition-colors"
+            style={{
+              color: today ? 'var(--text-inverse-muted)' : 'var(--day-add-muted)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = today ? 'rgba(255,255,255,0.2)' : 'var(--day-add-hover-bg)';
+              e.currentTarget.style.color = today ? 'var(--text-inverse)' : 'var(--day-add-hover-fg)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.color = today ? 'var(--text-inverse-muted)' : 'var(--day-add-muted)';
+            }}
             title="Add item to this day"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -56,19 +84,24 @@ export default function DayDetailPanel({ date, items, isPinned, onEdit, onDelete
         </div>
       </div>
 
-      {/* Items */}
       <div className="flex-1 overflow-y-auto p-5">
         {items.length === 0 ? (
           <div className="text-center py-16">
-            <div className="text-slate-200 mb-4">
+            <div className="mb-4" style={{ color: 'var(--day-empty-icon)' }}>
               <svg className="w-14 h-14 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
             </div>
-            <p className="text-sm text-slate-400 font-medium">No items for this day</p>
+            <p className="text-sm font-medium" style={{ color: 'var(--text-muted)' }}>
+              No items for this day
+            </p>
             <button
               onClick={() => onAdd(date)}
-              className="mt-4 px-4 py-2 text-sm font-semibold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors"
+              className="mt-4 px-4 py-2 text-sm font-semibold rounded-lg transition-colors"
+              style={{
+                color: 'var(--day-add-bar-text)',
+                backgroundColor: 'var(--accent-soft)',
+              }}
             >
               + Add Work Item
             </button>
@@ -78,8 +111,21 @@ export default function DayDetailPanel({ date, items, isPinned, onEdit, onDelete
             {items.map((item) => (
               <div
                 key={item.id}
-                className="group bg-white rounded-xl border border-slate-200 p-4 hover:border-indigo-200 hover:shadow-lg transition-all cursor-pointer"
+                className="group rounded-xl border p-4 transition-all cursor-pointer hover:shadow-lg"
+                style={{
+                  backgroundColor: 'var(--day-card-bg)',
+                  borderColor: 'var(--day-card-border)',
+                  boxShadow: 'none',
+                }}
                 onClick={() => onEdit(item)}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--day-card-hover-border)';
+                  e.currentTarget.style.boxShadow = 'var(--shadow-item-hover)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--day-card-border)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
@@ -87,18 +133,22 @@ export default function DayDetailPanel({ date, items, isPinned, onEdit, onDelete
                       {item.isAchievement && (
                         <span className="text-amber-400 text-sm flex-shrink-0 drop-shadow-sm">★</span>
                       )}
-                      <h3 className="text-sm font-bold text-slate-800">{item.title}</h3>
+                      <h3 className="text-sm font-bold" style={{ color: 'var(--day-card-title)' }}>
+                        {item.title}
+                      </h3>
                     </div>
 
                     {item.description && (
-                      <p className="text-sm text-slate-500 leading-relaxed mb-3">{item.description}</p>
+                      <p className="text-sm leading-relaxed mb-3" style={{ color: 'var(--day-card-desc)' }}>
+                        {item.description}
+                      </p>
                     )}
 
                     <div className="flex items-center gap-2">
                       <span className={`inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full ${getCategoryColor(item.category)}`}>
                         {getCategoryLabel(item.category)}
                       </span>
-                      <span className="text-[10px] text-slate-300">
+                      <span className="text-[10px]" style={{ color: 'var(--day-meta)' }}>
                         {format(new Date(item.updatedAt), 'h:mm a')}
                       </span>
                     </div>
@@ -109,7 +159,16 @@ export default function DayDetailPanel({ date, items, isPinned, onEdit, onDelete
                       e.stopPropagation();
                       onDelete(item.id);
                     }}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 flex-shrink-0"
+                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg"
+                    style={{ color: 'var(--text-muted)' }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = 'var(--day-delete-hover-bg)';
+                      e.currentTarget.style.color = 'var(--day-delete-hover-fg)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                      e.currentTarget.style.color = 'var(--text-muted)';
+                    }}
                     title="Delete"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -122,7 +181,18 @@ export default function DayDetailPanel({ date, items, isPinned, onEdit, onDelete
 
             <button
               onClick={() => onAdd(date)}
-              className="w-full py-3 text-sm font-semibold text-indigo-600 bg-indigo-50/50 hover:bg-indigo-100 rounded-xl transition-colors flex items-center justify-center gap-2 border border-dashed border-indigo-200"
+              className="w-full py-3 text-sm font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 border border-dashed"
+              style={{
+                color: 'var(--day-add-bar-text)',
+                backgroundColor: 'var(--day-add-bar)',
+                borderColor: 'var(--day-add-bar-border)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--day-add-bar-hover)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--day-add-bar)';
+              }}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />

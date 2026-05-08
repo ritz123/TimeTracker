@@ -7,7 +7,8 @@ import DayDetailPanel from './components/DayDetailPanel';
 import ItemForm from './components/ItemForm';
 import ExportModal from './components/ExportModal';
 import SettingsModal from './components/SettingsModal';
-import { loadData, saveData, loadPrefs } from './utils/storage';
+import { loadData, saveData, loadPrefs, savePrefs } from './utils/storage';
+import { applyTheme, normalizeThemeId } from './theme';
 import { formatDateKey, getItemsForDay } from './utils/dates';
 import { APP_NAME, APP_VERSION, APP_COPYRIGHT, APP_LICENSE } from './utils/appInfo';
 import { v4 as uuidv4 } from 'uuid';
@@ -71,14 +72,17 @@ export default function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [pinnedDate, setPinnedDate] = useState(null);
   const [hoveredDate, setHoveredDate] = useState(null);
+  const [theme, setTheme] = useState(() => normalizeThemeId(undefined));
 
   const displayDate = pinnedDate || hoveredDate || new Date();
   const displayItems = getItemsForDay(state.items, displayDate);
 
-  // Load prefs (migrates legacy google mode → local) then data on startup
   useEffect(() => {
     (async () => {
-      await loadPrefs();
+      const prefs = await loadPrefs();
+      const t = normalizeThemeId(prefs.theme);
+      setTheme(t);
+      applyTheme(t);
       try {
         const items = await loadData();
         dispatch({ type: 'SET_ITEMS', payload: items });
@@ -86,6 +90,14 @@ export default function App() {
         dispatch({ type: 'SET_ITEMS', payload: [] });
       }
     })();
+  }, []);
+
+  const handleThemeChange = useCallback(async (nextId) => {
+    const t = normalizeThemeId(nextId);
+    setTheme(t);
+    applyTheme(t);
+    const prefs = await loadPrefs();
+    await savePrefs({ ...prefs, theme: t });
   }, []);
 
   // Save whenever items change
@@ -156,14 +168,19 @@ export default function App() {
 
   if (!state.loaded) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gradient-to-br from-slate-50 to-indigo-50">
-        <div className="text-indigo-400 text-sm font-medium">Loading...</div>
+      <div
+        className="flex items-center justify-center h-screen"
+        style={{ backgroundImage: 'var(--gradient-page)' }}
+      >
+        <div className="text-sm font-medium" style={{ color: 'var(--accent-muted)' }}>
+          Loading...
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/40">
+    <div className="flex flex-col h-screen" style={{ backgroundImage: 'var(--gradient-page)' }}>
       <Toolbar
         monthOffset={state.monthOffset}
         onPrevMonth={() => dispatch({ type: 'PREV_MONTH' })}
@@ -208,13 +225,24 @@ export default function App() {
       )}
 
       {/* Copyright footer */}
-      <div className="flex items-center justify-between px-6 py-1.5 bg-slate-100 border-t border-slate-200 text-[10px] text-slate-400">
+      <div
+        className="flex items-center justify-between px-6 py-1.5 border-t text-[10px]"
+        style={{
+          backgroundColor: 'var(--footer-bg)',
+          borderColor: 'var(--border)',
+          color: 'var(--footer-text)',
+        }}
+      >
         <span>{APP_COPYRIGHT} &middot; {APP_LICENSE}</span>
         <span>{APP_NAME} v{APP_VERSION}</span>
       </div>
 
       {showSettings && (
-        <SettingsModal onClose={() => setShowSettings(false)} />
+        <SettingsModal
+          theme={theme}
+          onThemeChange={handleThemeChange}
+          onClose={() => setShowSettings(false)}
+        />
       )}
     </div>
   );

@@ -19,7 +19,7 @@ export default function SplashScreen({ onFinished }) {
         fadeOut ? 'opacity-0' : 'opacity-100'
       }`}
       style={{
-        background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 30%, #4338ca 60%, #6366f1 100%)',
+        backgroundImage: 'var(--gradient-loading)',
       }}
     >
       <div className="relative mb-8">
@@ -33,7 +33,7 @@ export default function SplashScreen({ onFinished }) {
       <h1 className="text-4xl font-bold text-white tracking-tight mb-3 splash-title">
         {APP_NAME}
       </h1>
-      <p className="text-indigo-200 text-lg font-light mb-10 splash-subtitle">
+      <p className="text-lg font-light mb-10 splash-subtitle" style={{ color: 'var(--splash-tagline)' }}>
         {APP_TAGLINE}
       </p>
 
@@ -47,7 +47,7 @@ export default function SplashScreen({ onFinished }) {
         ))}
       </div>
 
-      <div className="absolute bottom-10 text-indigo-300/60 text-xs font-medium tracking-widest uppercase">
+      <div className="absolute bottom-10 text-xs font-medium tracking-widest uppercase" style={{ color: 'var(--splash-version)' }}>
         v{APP_VERSION}
       </div>
     </div>

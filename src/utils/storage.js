@@ -8,7 +8,8 @@ const PREFS_KEY = 'weekly-tracker-prefs';
 export async function loadPrefs() {
   if (isElectron) return window.api.getPrefs();
   const raw = localStorage.getItem(PREFS_KEY);
-  const prefs = raw ? JSON.parse(raw) : { storageMode: 'local' };
+  const prefs = raw ? JSON.parse(raw) : { storageMode: 'local', theme: 'default' };
+  if (!prefs.theme) prefs.theme = 'default';
   if (prefs.storageMode === 'google') {
     const next = { ...prefs, storageMode: 'local' };
     await savePrefs(next);

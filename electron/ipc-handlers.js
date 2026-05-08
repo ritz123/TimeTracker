@@ -15,17 +15,17 @@ function ensureDataDir() {
 
 function loadPrefs() {
   ensureDataDir();
-  if (!fs.existsSync(PREFS_FILE)) return { storageMode: 'local' };
+  if (!fs.existsSync(PREFS_FILE)) return { storageMode: 'local', theme: 'default' };
   try {
     const prefs = JSON.parse(fs.readFileSync(PREFS_FILE, 'utf-8'));
-    if (prefs.storageMode === 'google') {
-      const next = { ...prefs, storageMode: 'local' };
-      savePrefs(next);
-      return next;
+    const merged = { theme: 'default', storageMode: 'local', ...prefs };
+    if (merged.storageMode === 'google') {
+      merged.storageMode = 'local';
+      savePrefs(merged);
     }
-    return prefs;
+    return merged;
   } catch {
-    return { storageMode: 'local' };
+    return { storageMode: 'local', theme: 'default' };
   }
 }
 

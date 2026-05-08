@@ -4,7 +4,14 @@
 
 @layer base {
   body {
-    @apply antialiased;
+    @apply antialiased min-h-screen;
+    color: var(--text);
+    background-color: transparent;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--form-placeholder);
   }
 }
 

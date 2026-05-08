@@ -47,20 +47,48 @@ export default function ItemForm({ editingItem, selectedDate, onSave, onCancel }
   const isOpen = editingItem || selectedDate;
   if (!isOpen) return null;
 
+  const inputClass =
+    'w-full px-3 py-2 text-sm rounded-lg focus:outline-none focus:ring-2 resize-none bg-[var(--surface)]';
+  const inputStyle = {
+    borderWidth: 1,
+    borderStyle: 'solid',
+    borderColor: 'var(--form-border)',
+    color: 'var(--text)',
+    boxShadow: '0 0 0 0 transparent',
+  };
+
   return (
-    <div className="border-t border-slate-200 bg-white/90 backdrop-blur-sm shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.08)]">
+    <div
+      className="border-t backdrop-blur-sm"
+      style={{
+        borderColor: 'var(--form-border)',
+        backgroundColor: 'var(--surface-glass)',
+        boxShadow: 'var(--shadow-form)',
+      }}
+    >
       <form onSubmit={handleSubmit} className="px-6 py-4">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-base font-bold text-slate-800">
+          <h2 className="text-base font-bold" style={{ color: 'var(--text)' }}>
             {editingItem ? 'Edit Work Item' : 'Add Work Item'}
             {dateLabel && (
-              <span className="ml-2 text-sm font-normal text-slate-400">— {dateLabel}</span>
+              <span className="ml-2 text-sm font-normal" style={{ color: 'var(--text-muted)' }}>
+                — {dateLabel}
+              </span>
             )}
           </h2>
           <button
             type="button"
             onClick={onCancel}
-            className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
+            className="p-1.5 rounded-lg transition-colors"
+            style={{ color: 'var(--text-muted)' }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--surface-elevated)';
+              e.currentTarget.style.color = 'var(--text)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.color = 'var(--text-muted)';
+            }}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -76,14 +104,16 @@ export default function ItemForm({ editingItem, selectedDate, onSave, onCancel }
               placeholder="What did you work on?"
               value={form.title}
               onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent placeholder-slate-400 bg-white"
+              className={`${inputClass} focus:ring-[var(--accent-ring)]`}
+              style={inputStyle}
             />
             <textarea
               placeholder="Details (optional)"
               value={form.description}
               onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
               rows={2}
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent placeholder-slate-400 resize-none bg-white"
+              className={`${inputClass} focus:ring-[var(--accent-ring)]`}
+              style={inputStyle}
             />
           </div>
 
@@ -91,7 +121,8 @@ export default function ItemForm({ editingItem, selectedDate, onSave, onCancel }
             <select
               value={form.category}
               onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white"
+              className={`${inputClass} focus:ring-[var(--accent-ring)]`}
+              style={inputStyle}
             >
               {CATEGORIES.map((cat) => (
                 <option key={cat.id} value={cat.id}>
@@ -105,9 +136,12 @@ export default function ItemForm({ editingItem, selectedDate, onSave, onCancel }
                 type="checkbox"
                 checked={form.isAchievement}
                 onChange={(e) => setForm((f) => ({ ...f, isAchievement: e.target.checked }))}
-                className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                className="w-4 h-4 rounded border-[var(--form-border)]"
+                style={{ accentColor: 'var(--accent)' }}
               />
-              <span className="text-sm text-slate-700">Mark as Achievement</span>
+              <span className="text-sm" style={{ color: 'var(--text)' }}>
+                Mark as Achievement
+              </span>
             </label>
           </div>
         </div>
@@ -116,14 +150,36 @@ export default function ItemForm({ editingItem, selectedDate, onSave, onCancel }
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors"
+            className="px-4 py-2 text-sm font-medium rounded-lg transition-colors"
+            style={{
+              color: 'var(--form-secondary-text)',
+              backgroundColor: 'var(--form-secondary-bg)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--form-secondary-hover)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--form-secondary-bg)';
+            }}
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={!form.title.trim()}
-            className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-violet-600 rounded-lg hover:from-indigo-700 hover:to-violet-700 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm shadow-indigo-200"
+            className="px-4 py-2 text-sm font-medium text-white rounded-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            style={{
+              backgroundImage: 'var(--gradient-accent-btn)',
+              boxShadow: 'var(--shadow-accent-btn)',
+            }}
+            onMouseEnter={(e) => {
+              if (!e.currentTarget.disabled) {
+                e.currentTarget.style.backgroundImage = 'var(--gradient-accent-btn-hover)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundImage = 'var(--gradient-accent-btn)';
+            }}
           >
             {editingItem ? 'Update' : 'Add Item'}
           </button>

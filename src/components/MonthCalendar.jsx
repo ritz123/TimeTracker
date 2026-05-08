@@ -16,33 +16,45 @@ export default function MonthCalendar({ monthOffset, items, focusedDate, hovered
 
   return (
     <div className="w-[340px] flex-shrink-0 flex flex-col p-4 min-h-0">
-      {/* Weekday headers */}
       <div className="grid grid-cols-[32px_repeat(7,1fr)] gap-px mb-1">
-        <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider text-center py-1.5">
+        <div
+          className="text-[9px] font-bold uppercase tracking-wider text-center py-1.5"
+          style={{ color: 'var(--cal-header)' }}
+        >
           Wk
         </div>
         {WEEKDAYS.map((d) => (
-          <div key={d} className="text-[10px] font-bold text-slate-400 uppercase tracking-wider text-center py-1.5">
+          <div
+            key={d}
+            className="text-[10px] font-bold uppercase tracking-wider text-center py-1.5"
+            style={{ color: 'var(--cal-header)' }}
+          >
             {d}
           </div>
         ))}
       </div>
 
-      {/* Week rows — outer border wraps the entire grid */}
-      <div className="flex-1 grid auto-rows-fr border border-slate-200 rounded-xl overflow-hidden">
+      <div
+        className="flex-1 grid auto-rows-fr border rounded-xl overflow-hidden"
+        style={{ borderColor: 'var(--border)' }}
+      >
         {weeks.map((week) => {
           const currentWeekRow = week.days.some(isInCurrentWeek);
 
           return (
             <div
               key={week.weekNumber + '-' + formatDateKey(week.days[0])}
-              className={`grid grid-cols-[32px_repeat(7,1fr)] ${
-                currentWeekRow ? 'bg-indigo-50/40' : ''
-              }`}
+              className="grid grid-cols-[32px_repeat(7,1fr)]"
+              style={currentWeekRow ? { backgroundColor: 'var(--cal-week-row)' } : undefined}
             >
-              <div className={`flex items-center justify-center text-[10px] font-bold border-r border-b border-slate-200 ${
-                currentWeekRow ? 'bg-indigo-500 text-white' : 'bg-slate-50 text-slate-400'
-              }`}>
+              <div
+                className="flex items-center justify-center text-[10px] font-bold border-r border-b"
+                style={{
+                  borderColor: 'var(--border)',
+                  backgroundColor: currentWeekRow ? 'var(--cal-wk-active-bg)' : 'var(--cal-wk-inactive-bg)',
+                  color: currentWeekRow ? 'var(--cal-wk-active-fg)' : 'var(--cal-wk-inactive-fg)',
+                }}
+              >
                 {week.weekNumber}
               </div>
 
@@ -55,35 +67,58 @@ export default function MonthCalendar({ monthOffset, items, focusedDate, hovered
                 const count = itemCounts[key] || 0;
                 const hasAchievement = achievementDates.has(key);
 
+                let bg = inMonth ? 'var(--cal-cell-in-bg)' : 'var(--cal-cell-out-bg)';
+                let fg = inMonth ? 'var(--cal-cell-in-text)' : 'var(--cal-cell-out-text)';
+                if (isFocused) {
+                  bg = 'var(--cal-focus-bg)';
+                } else if (isHovered) {
+                  bg = 'var(--cal-hover)';
+                } else if (today && !isFocused) {
+                  bg = 'var(--cal-today-cell)';
+                }
+
                 return (
                   <button
                     key={key}
                     onClick={() => onDayClick(date)}
                     onMouseEnter={() => onDayHover(date)}
-                    className={`
-                      relative flex flex-col items-center justify-center py-2 transition-all outline-none
-                      border-r border-b border-slate-200 last:border-r-0
-                      ${!inMonth ? 'bg-slate-50/50 text-slate-300' : 'bg-white text-slate-700 hover:bg-indigo-50/50'}
-                      ${isFocused ? 'bg-indigo-100 ring-2 ring-inset ring-indigo-500 z-10' : ''}
-                      ${isHovered && !isFocused ? 'bg-indigo-50' : ''}
-                      ${today && !isFocused ? 'bg-indigo-50/70' : ''}
-                    `}
+                    className="relative flex flex-col items-center justify-center py-2 transition-all outline-none border-r border-b last:border-r-0"
+                    style={{
+                      borderColor: 'var(--border)',
+                      backgroundColor: bg,
+                      color: fg,
+                      boxShadow: isFocused ? `inset 0 0 0 2px var(--cal-focus-ring)` : undefined,
+                      zIndex: isFocused ? 10 : undefined,
+                    }}
                   >
-                    <span className={`
-                      inline-flex items-center justify-center w-7 h-7 text-xs font-bold rounded-full
-                      ${today ? 'bg-indigo-500 text-white' : ''}
-                      ${isFocused && !today ? 'bg-indigo-500 text-white' : ''}
-                    `}>
+                    <span
+                      className="inline-flex items-center justify-center w-7 h-7 text-xs font-bold rounded-full"
+                      style={
+                        today || (isFocused && !today)
+                          ? {
+                              backgroundColor: 'var(--cal-day-today-bg)',
+                              color: 'var(--cal-day-today-fg)',
+                            }
+                          : undefined
+                      }
+                    >
                       {format(date, 'd')}
                     </span>
 
-                    {/* Dot indicators */}
                     {count > 0 && (
                       <div className="flex items-center gap-0.5 mt-1">
                         {hasAchievement && <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />}
-                        <span className={`w-1.5 h-1.5 rounded-full ${count >= 3 ? 'bg-indigo-500' : count >= 2 ? 'bg-indigo-400' : 'bg-indigo-300'}`} />
+                        <span
+                          className="w-1.5 h-1.5 rounded-full"
+                          style={{
+                            backgroundColor:
+                              count >= 3 ? 'var(--cal-dot-3)' : count >= 2 ? 'var(--cal-dot-2)' : 'var(--cal-dot-1)',
+                          }}
+                        />
                         {count > 1 && (
-                          <span className="text-[8px] font-bold text-slate-400">{count}</span>
+                          <span className="text-[8px] font-bold" style={{ color: 'var(--cal-header)' }}>
+                            {count}
+                          </span>
                         )}
                       </div>
                     )}

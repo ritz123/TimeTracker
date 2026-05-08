@@ -49,15 +49,37 @@ export default function ExportModal({ items, onClose }) {
     }
   };
 
+  const fieldClass =
+    'w-full px-3 py-2 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent-ring)] bg-[var(--surface)] border border-[var(--form-border)] text-[var(--text)]';
+
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-2xl w-[720px] max-h-[85vh] flex flex-col overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-gradient-to-r from-indigo-50 to-violet-50">
-          <h2 className="text-lg font-bold text-slate-800">Export Report</h2>
+    <div className="fixed inset-0 z-40 flex items-center justify-center backdrop-blur-sm" style={{ backgroundColor: 'var(--modal-backdrop)' }}>
+      <div
+        className="rounded-2xl shadow-2xl w-[720px] max-h-[85vh] flex flex-col overflow-hidden border"
+        style={{ backgroundColor: 'var(--modal-surface)', borderColor: 'var(--border)' }}
+      >
+        <div
+          className="flex items-center justify-between px-6 py-4 border-b"
+          style={{
+            borderColor: 'var(--border)',
+            backgroundImage: 'var(--gradient-export-header)',
+          }}
+        >
+          <h2 className="text-lg font-bold" style={{ color: 'var(--text)' }}>
+            Export Report
+          </h2>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-slate-200/60 text-slate-400 hover:text-slate-600 transition-colors"
+            className="p-1.5 rounded-lg transition-colors"
+            style={{ color: 'var(--text-muted)' }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--surface-elevated)';
+              e.currentTarget.style.color = 'var(--text)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.color = 'var(--text-muted)';
+            }}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -65,38 +87,32 @@ export default function ExportModal({ items, onClose }) {
           </button>
         </div>
 
-        {/* Date range */}
-        <div className="px-6 py-4 border-b border-slate-100 bg-white">
-          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Date Range</p>
+        <div className="px-6 py-4 border-b" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}>
+          <p className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: 'var(--text-muted)' }}>
+            Date Range
+          </p>
           <div className="flex items-center gap-3">
             <div className="flex-1">
-              <label className="block text-xs text-slate-500 mb-1">From</label>
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white"
-              />
+              <label className="block text-xs mb-1" style={{ color: 'var(--text-muted)' }}>
+                From
+              </label>
+              <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className={fieldClass} />
             </div>
-            <svg className="w-5 h-5 text-slate-400 mt-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 mt-5 flex-shrink-0" style={{ color: 'var(--text-muted)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
             </svg>
             <div className="flex-1">
-              <label className="block text-xs text-slate-500 mb-1">To</label>
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white"
-              />
+              <label className="block text-xs mb-1" style={{ color: 'var(--text-muted)' }}>
+                To
+              </label>
+              <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className={fieldClass} />
             </div>
           </div>
           {!valid && startDate && endDate && (
-            <p className="mt-2 text-xs text-red-500 font-medium">End date must be on or after start date.</p>
+            <p className="mt-2 text-xs font-medium text-red-500">End date must be on or after start date.</p>
           )}
 
-          {/* Quick presets */}
-          <div className="flex gap-2 mt-3">
+          <div className="flex gap-2 mt-3 flex-wrap">
             {[
               { label: 'This week', fn: () => {
                 const ws = startOfWeek(new Date(), { weekStartsOn: 1 });
@@ -104,19 +120,19 @@ export default function ExportModal({ items, onClose }) {
                 setStartDate(formatDateKey(ws)); setEndDate(formatDateKey(we));
               }},
               { label: 'Last 7 days', fn: () => {
-                const now = new Date();
-                const past = new Date(now); past.setDate(past.getDate() - 6);
-                setStartDate(formatDateKey(past)); setEndDate(formatDateKey(now));
+                const n = new Date();
+                const past = new Date(n); past.setDate(past.getDate() - 6);
+                setStartDate(formatDateKey(past)); setEndDate(formatDateKey(n));
               }},
               { label: 'Last 30 days', fn: () => {
-                const now = new Date();
-                const past = new Date(now); past.setDate(past.getDate() - 29);
-                setStartDate(formatDateKey(past)); setEndDate(formatDateKey(now));
+                const n = new Date();
+                const past = new Date(n); past.setDate(past.getDate() - 29);
+                setStartDate(formatDateKey(past)); setEndDate(formatDateKey(n));
               }},
               { label: 'This month', fn: () => {
-                const now = new Date();
-                const ms = new Date(now.getFullYear(), now.getMonth(), 1);
-                const me = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                const n = new Date();
+                const ms = new Date(n.getFullYear(), n.getMonth(), 1);
+                const me = new Date(n.getFullYear(), n.getMonth() + 1, 0);
                 setStartDate(formatDateKey(ms)); setEndDate(formatDateKey(me));
               }},
             ].map((p) => (
@@ -124,7 +140,19 @@ export default function ExportModal({ items, onClose }) {
                 key={p.label}
                 onClick={p.fn}
                 type="button"
-                className="px-2.5 py-1 text-xs font-medium rounded-full bg-slate-100 text-slate-600 hover:bg-indigo-100 hover:text-indigo-700 transition-colors"
+                className="px-2.5 py-1 text-xs font-medium rounded-full transition-colors"
+                style={{
+                  backgroundColor: 'var(--modal-preset-bg)',
+                  color: 'var(--modal-preset-text)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'var(--modal-preset-hover-bg)';
+                  e.currentTarget.style.color = 'var(--modal-preset-hover-text)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'var(--modal-preset-bg)';
+                  e.currentTarget.style.color = 'var(--modal-preset-text)';
+                }}
               >
                 {p.label}
               </button>
@@ -132,42 +160,74 @@ export default function ExportModal({ items, onClose }) {
           </div>
         </div>
 
-        {/* Preview */}
-        <div className="flex-1 overflow-y-auto px-6 py-4 bg-slate-50/50">
-          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Preview</p>
+        <div className="flex-1 overflow-y-auto px-6 py-4" style={{ backgroundColor: 'var(--modal-preview-bg)' }}>
+          <p className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: 'var(--text-muted)' }}>
+            Preview
+          </p>
           {valid ? (
             <div
               ref={previewRef}
-              className="bg-white rounded-lg border border-slate-200 p-6 text-sm leading-relaxed shadow-sm"
-              style={{ fontFamily: "'Inter', system-ui, -apple-system, sans-serif" }}
+              className="rounded-lg border p-6 text-sm leading-relaxed shadow-sm"
+              style={{
+                backgroundColor: 'var(--modal-preview-card)',
+                borderColor: 'var(--border)',
+                color: 'var(--text)',
+                fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
+              }}
               dangerouslySetInnerHTML={{ __html: previewHtml }}
             />
           ) : (
-            <div className="text-center text-slate-400 py-12 text-sm">
+            <div className="text-center py-12 text-sm" style={{ color: 'var(--text-muted)' }}>
               Select a valid date range to preview
             </div>
           )}
         </div>
 
-        {/* Footer */}
-        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-200 bg-white">
+        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}>
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors"
+            className="px-4 py-2 text-sm font-medium rounded-lg transition-colors"
+            style={{
+              color: 'var(--form-secondary-text)',
+              backgroundColor: 'var(--form-secondary-bg)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--form-secondary-hover)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--form-secondary-bg)';
+            }}
           >
             Cancel
           </button>
           <button
             onClick={handleExportMd}
             disabled={!valid}
-            className="px-4 py-2 text-sm font-medium text-indigo-700 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed ring-1 ring-indigo-200"
+            className="px-4 py-2 text-sm font-medium rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed border"
+            style={{
+              color: 'var(--text-on-accent)',
+              backgroundColor: 'var(--accent-soft)',
+              borderColor: 'var(--day-add-bar-border)',
+            }}
           >
             Download .md
           </button>
           <button
             onClick={handleExportPdf}
             disabled={!valid || exporting}
-            className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-violet-600 rounded-lg hover:from-indigo-700 hover:to-violet-700 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm shadow-indigo-200"
+            className="px-4 py-2 text-sm font-medium text-white rounded-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            style={{
+              backgroundImage: 'var(--gradient-accent-btn)',
+              boxShadow: 'var(--shadow-accent-btn)',
+            }}
+            onMouseEnter={(e) => {
+              if (!e.currentTarget.disabled) {
+                e.currentTarget.style.backgroundImage = 'var(--gradient-accent-btn-hover)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundImage = 'var(--gradient-accent-btn)';
+            }}
           >
             {exporting ? 'Generating...' : 'Download PDF'}
           </button>
