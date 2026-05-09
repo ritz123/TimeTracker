@@ -1,6 +1,6 @@
 import {
   startOfWeek, endOfWeek, addWeeks, differenceInWeeks,
-  startOfMonth, endOfMonth, addMonths,
+  startOfMonth, endOfMonth, addMonths, differenceInMonths,
   format, eachDayOfInterval, isSameDay, isSameMonth, getISOWeek,
 } from 'date-fns';
 
@@ -67,4 +67,10 @@ export function isSameMonthAs(date, reference) {
 
 export function formatMonthYear(date) {
   return format(date, 'MMMM yyyy');
+}
+
+/** Month offset for `getMonthGrid` so the calendar shows the month containing `date`. */
+export function monthOffsetForDate(date) {
+  const ref = new Date();
+  return differenceInMonths(startOfMonth(date), startOfMonth(ref));
 }

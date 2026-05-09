@@ -1,15 +1,16 @@
 import React, { useReducer, useEffect, useCallback, useState } from 'react';
-import { isSameDay } from 'date-fns';
+import { isSameDay, parseISO } from 'date-fns';
 import SplashScreen from './components/SplashScreen';
 import Toolbar from './components/Toolbar';
 import MonthCalendar from './components/MonthCalendar';
 import DayDetailPanel from './components/DayDetailPanel';
+import CopyToDateModal from './components/CopyToDateModal';
 import ExportModal from './components/ExportModal';
 import SettingsModal from './components/SettingsModal';
 import { loadData, saveData, loadPrefs, savePrefs, openExternalUrl } from './utils/storage';
 import { applyTheme, normalizeThemeId } from './theme';
 import { checkForUpdates } from './utils/updates';
-import { formatDateKey, getItemsForDay } from './utils/dates';
+import { formatDateKey, getItemsForDay, monthOffsetForDate } from './utils/dates';
 import { APP_NAME, APP_VERSION, APP_COPYRIGHT, APP_LICENSE } from './utils/appInfo';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -60,6 +61,22 @@ function reducer(state, action) {
       return { ...state, editingItem: action.payload, selectedDate: null };
     case 'CANCEL_FORM':
       return { ...state, editingItem: null, selectedDate: null };
+    case 'SET_MONTH_OFFSET':
+      return { ...state, monthOffset: action.payload, editingItem: null, selectedDate: null };
+    case 'COPY_ITEM': {
+      const { source, targetDateKey } = action.payload;
+      const newItem = {
+        id: uuidv4(),
+        date: targetDateKey,
+        title: source.title,
+        description: source.description || '',
+        category: source.category,
+        isAchievement: !!source.isAchievement,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      return { ...state, items: [...state.items, newItem] };
+    }
     default:
       return state;
   }
@@ -74,6 +91,7 @@ export default function App() {
   const [hoveredDate, setHoveredDate] = useState(null);
   const [theme, setTheme] = useState(() => normalizeThemeId(undefined));
   const [updateBanner, setUpdateBanner] = useState(null);
+  const [copyItem, setCopyItem] = useState(null);
 
   const displayDate = pinnedDate || hoveredDate || new Date();
   const displayItems = getItemsForDay(state.items, displayDate);
@@ -182,6 +200,26 @@ export default function App() {
     }
   }, [pinnedDate, displayDate]);
 
+  const handleRequestCopyToDate = useCallback((item) => {
+    setCopyItem(item);
+  }, []);
+
+  const handleCopyToDateConfirm = useCallback(
+    (targetDateKey) => {
+      if (!copyItem) return;
+      dispatch({
+        type: 'COPY_ITEM',
+        payload: { source: copyItem, targetDateKey },
+      });
+      dispatch({ type: 'CANCEL_FORM' });
+      const targetDate = parseISO(targetDateKey);
+      dispatch({ type: 'SET_MONTH_OFFSET', payload: monthOffsetForDate(targetDate) });
+      setPinnedDate(targetDate);
+      setCopyItem(null);
+    },
+    [copyItem]
+  );
+
   if (showSplash) {
     return <SplashScreen onFinished={() => setShowSplash(false)} />;
   }
@@ -265,6 +303,7 @@ export default function App() {
           onDelete={handleDeleteItem}
           onAdd={handleAddItem}
           onPin={handleTogglePin}
+          onCopyToAnotherDay={handleRequestCopyToDate}
           editingItem={state.editingItem}
           selectedDate={state.selectedDate}
           onSave={handleSave}
@@ -294,6 +333,14 @@ export default function App() {
 
       {showSettings && (
         <SettingsModal onClose={() => setShowSettings(false)} />
+      )}
+
+      {copyItem && (
+        <CopyToDateModal
+          item={copyItem}
+          onClose={() => setCopyItem(null)}
+          onConfirm={handleCopyToDateConfirm}
+        />
       )}
     </div>
   );

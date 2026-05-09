@@ -10,7 +10,7 @@ const EMPTY_FORM = {
   isAchievement: false,
 };
 
-export default function ItemForm({ editingItem, selectedDate, onSave, onCancel }) {
+export default function ItemForm({ editingItem, selectedDate, onSave, onCancel, onCopyToAnotherDay }) {
   const [form, setForm] = useState(EMPTY_FORM);
   const titleRef = useRef(null);
 
@@ -35,6 +35,17 @@ export default function ItemForm({ editingItem, selectedDate, onSave, onCancel }
       ...form,
       title: form.title.trim(),
       description: form.description.trim(),
+    });
+  };
+
+  const handleCopyToAnotherDayClick = () => {
+    if (!editingItem || !onCopyToAnotherDay || !form.title.trim()) return;
+    onCopyToAnotherDay({
+      ...editingItem,
+      title: form.title.trim(),
+      description: form.description.trim(),
+      category: form.category,
+      isAchievement: form.isAchievement,
     });
   };
 
@@ -162,9 +173,23 @@ export default function ItemForm({ editingItem, selectedDate, onSave, onCancel }
           </div>
 
           <div
-            className="flex justify-end gap-2 mt-4 shrink-0 pt-1 max-md:border-t md:border-t md:pt-4"
+            className="flex flex-wrap items-center justify-between gap-2 mt-4 shrink-0 pt-1 max-md:border-t md:border-t md:pt-4"
             style={{ borderColor: 'var(--form-border)' }}
           >
+            <div className="min-w-0">
+              {editingItem && onCopyToAnotherDay && (
+                <button
+                  type="button"
+                  onClick={handleCopyToAnotherDayClick}
+                  disabled={!form.title.trim()}
+                  className="text-sm font-medium rounded-lg px-2 py-1.5 -ml-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  style={{ color: 'var(--accent)' }}
+                >
+                  Copy to another day…
+                </button>
+              )}
+            </div>
+            <div className="flex justify-end gap-2 shrink-0">
             <button
               type="button"
               onClick={onCancel}
@@ -201,6 +226,7 @@ export default function ItemForm({ editingItem, selectedDate, onSave, onCancel }
             >
               {editingItem ? 'Update' : 'Add Item'}
             </button>
+            </div>
           </div>
         </form>
       </div>
