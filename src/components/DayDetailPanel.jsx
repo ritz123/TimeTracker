@@ -196,7 +196,7 @@ export default function DayDetailPanel({
                         e.stopPropagation();
                         onCopyToAnotherDay?.(item);
                       }}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg"
+                      className="opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity p-1.5 rounded-lg"
                       style={{ color: 'var(--text-muted)' }}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.backgroundColor = 'var(--day-delete-hover-bg)';
@@ -218,7 +218,7 @@ export default function DayDetailPanel({
                         e.stopPropagation();
                         onDelete(item.id);
                       }}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg"
+                      className="opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity p-1.5 rounded-lg"
                       style={{ color: 'var(--text-muted)' }}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.backgroundColor = 'var(--day-delete-hover-bg)';
